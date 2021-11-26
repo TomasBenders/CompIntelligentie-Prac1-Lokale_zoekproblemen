@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,8 +36,12 @@ namespace SudokuSolver
             for (int x = 0; x < gridValues.GetLength(0); x++)
                 for (int y = 0; y < gridValues.GetLength(1); y++)
                 {
-                    Console.SetCursorPosition(left + x, top + y);
-                    Console.Write(gridValues[x, y]);
+                    Console.SetCursorPosition(left + x * 2, top + y);
+                    string str = $"{gridValues[x, y]}{(x < gridValues.GetLength(0) - 1 ? (x % 3 == 2 ? "|" : " ") : "")}";
+                    if (y % 3 == 2 && y != 8)
+                        Utils.WriteUnderline(str);
+                    else
+                        Console.Write(str);
                 }
         }
 

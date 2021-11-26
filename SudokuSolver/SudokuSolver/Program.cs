@@ -2,10 +2,6 @@
 using SudokuSolver;
 using SudokuSolver.Properties;
 
-Console.WriteLine("Sudoku is solved, bicchh");
-
 List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
-foreach (var item in sudokuGrids)
-{
-    item.PrintGrid(0, 0);
-}
+for (int i = 0; i < sudokuGrids.Count; i++)
+    sudokuGrids[i].PrintGrid(0, i*10);
