@@ -10,6 +10,21 @@ namespace SudokuSolver
     internal class SudokuGrid
     {
         byte[,] gridValues = new byte[9,9];
+        int[] hVRow = new int[9];
+        int[] hVColumn = new int[9];
+
+        internal byte[] getRow(int row)
+        {
+            throw new NotImplementedException();
+        }
+        internal byte[] getColumn(int column)
+        {
+            throw new NotImplementedException();
+        }
+        internal byte[] getBox(int x, int y)
+        {
+            throw new NotImplementedException();
+        }
 
         private byte[,] FromByteArray(byte[] values)
         {
@@ -31,6 +46,10 @@ namespace SudokuSolver
             gridValues = FromByteArray(values.Split().Select(byte.Parse).ToArray());
         }
 
+        internal void PrintBestSuccessor(int left, int top, int x1, int y1, int x2, int y2)
+        {
+            throw new NotImplementedException();
+        }
         internal void PrintGrid(int left, int top)
         {
             for (int x = 0; x < gridValues.GetLength(0); x++)
@@ -53,6 +72,39 @@ namespace SudokuSolver
             for (int i = 1; i < lines.Length; i+=2)
                 result.Add(new SudokuGrid(lines[i].Trim()));
             return result;
+        }
+        internal void FillInZeroes()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal int CalcHeuristicRow(int row)
+        {
+            int r = 0;
+            HashSet<byte> seen = new();
+            for (int x = 0; x < gridValues.GetLength(0); x++)
+                r += seen.Add(gridValues[x, row]) ? 0 : 1;
+            return r;
+        }
+        internal int CalcHeuristicColumn(int column)
+        {
+            int r = 0;
+            HashSet<byte> seen = new();
+            for (int y = 0; y < gridValues.GetLength(1); y++)
+                r += seen.Add(gridValues[column, y]) ? 0 : 1;
+            return r;
+        }
+        internal int GetHeuristic()
+        {
+            throw new NotImplementedException();
+        }
+        internal bool IsCorrect()
+        {
+            throw new NotImplementedException();
+        }
+        internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
+        {
+            throw new NotImplementedException();
         }
     }
 }
