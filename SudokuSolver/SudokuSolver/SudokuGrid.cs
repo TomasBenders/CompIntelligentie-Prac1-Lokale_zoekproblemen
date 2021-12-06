@@ -48,20 +48,19 @@ namespace SudokuSolver
 
         internal void PrintBestSuccessor(int left, int top, int x1, int y1, int x2, int y2)
         {
-            throw new NotImplementedException();
-        }
-        internal void PrintGrid(int left, int top)
-        {
             for (int x = 0; x < gridValues.GetLength(0); x++)
                 for (int y = 0; y < gridValues.GetLength(1); y++)
                 {
                     Console.SetCursorPosition(left + x * 2, top + y);
-                    string str = $"{gridValues[x, y]}{(x < gridValues.GetLength(0) - 1 ? (x % 3 == 2 ? "|" : " ") : "")}";
-                    if (y % 3 == 2 && y != 8)
-                        Utils.WriteUnderline(str);
-                    else
-                        Console.Write(str);
+                    bool shouldUnderLine = y % 3 == 2 && y != 8;
+                    Utils.WriteUnderline(gridValues[x, y].ToString(), shouldUnderLine, 
+                        (x == x1 && y == y1) || (x == x2 && y == y2) ? ConsoleColor.Red : null);
+                    Utils.WriteUnderline(x < gridValues.GetLength(0) - 1 ? (x % 3 == 2 ? "|" : " ") : "", shouldUnderLine, null);
                 }
+        }
+        internal void PrintGrid(int left, int top)
+        {
+            PrintBestSuccessor(left, top, -1, -1, -1, -1);
         }
 
         internal static List<SudokuGrid> ParsePuzzels(string puzzels)
@@ -84,6 +83,7 @@ namespace SudokuSolver
             HashSet<byte> seen = new();
             for (int x = 0; x < gridValues.GetLength(0); x++)
                 r += seen.Add(gridValues[x, row]) ? 0 : 1;
+            hVRow[row] = r;
             return r;
         }
         internal int CalcHeuristicColumn(int column)
@@ -92,11 +92,12 @@ namespace SudokuSolver
             HashSet<byte> seen = new();
             for (int y = 0; y < gridValues.GetLength(1); y++)
                 r += seen.Add(gridValues[column, y]) ? 0 : 1;
+            hVColumn[column] = r;
             return r;
         }
         internal int GetHeuristic()
         {
-            throw new NotImplementedException();
+            return hVColumn.Sum() + hVRow.Sum();
         }
         internal bool IsCorrect()
         {

@@ -22,4 +22,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\MyDocuments\Studie-Shit\Computationele Intelligentie\Assignments\Prac1-Lokale_zoekalgoritmen\SudokuSolver\SudokuSolver\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\MyDocuments\Studie-Shit\Computationele Intelligentie\Assignments\Prac1-Lokale_zoekalgoritmen\SudokuSolver\SudokuSolver\.editorconfig" />
+  </ItemGroup>
+
 </Project>
