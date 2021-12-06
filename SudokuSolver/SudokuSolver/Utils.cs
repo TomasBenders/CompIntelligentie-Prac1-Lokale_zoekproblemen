@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace SudokuSolver
 {
+    /// <summary>
+    /// A helper class for Console functions
+    /// https://stackoverflow.com/questions/5237666/adding-text-decorations-to-console-output
+    /// </summary>
     static internal class Utils
     {
         const int STD_OUTPUT_HANDLE = -11;
@@ -21,6 +25,13 @@ namespace SudokuSolver
         [DllImport("kernel32.dll")]
         static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
+        /// <summary>
+        /// Writes to the console with or without underline and/or textColor
+        /// </summary>
+        /// <param name="str"> The string to write to the Console </param>
+        /// <param name="shouldUnderline"> Whether to underline the text or not </param>
+        /// <param name="textColor"> The text color to print to the console. 
+        /// If textColor is null, the existing text colo is used</param>
         static internal void WriteUnderline(string str, bool shouldUnderline = true, ConsoleColor? textColor = null)
         {
             ConsoleColor fg = Console.ForegroundColor;
