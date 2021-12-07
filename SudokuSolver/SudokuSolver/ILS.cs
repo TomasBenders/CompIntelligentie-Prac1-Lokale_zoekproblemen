@@ -79,7 +79,55 @@ namespace SudokuSolver
 
         private SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < s; i++)
+            {
+                int whichsquare = rnd.Next(0, 8);
+                int x1 = rnd.Next(0, 2);
+                int y1 = rnd.Next(0, 2);
+                int x2 = x1;
+                int y2 = y1;
+                bool notfit = true;
+                while (notfit)
+                {
+                    int direction = rnd.Next(0, 3);
+                    switch (direction)
+                    {
+                        case 0:
+                            if (y1 != 0)
+                            {
+                                notfit = false;
+                                y2 = y1 - 1;
+                            }
+                            break;
+                        case 1:
+                            if (x1 != 0)
+                            {
+                                notfit = false;
+                                x2 = x1 - 1;
+                            }
+                            break;
+                        case 2:
+                            if (y1 != 2)
+                            {
+                                notfit = false;
+                                y2 = y1 + 1;
+                            }
+                            break;
+                        case 3:
+                            if (x1 != 2)
+                            {
+                                notfit = false;
+                                x2 = x1 + 1;
+                            }
+                            break;
+                    }
+
+                }
+                return sudokuGrid.Swap(x1, y1, x2, y2);
+
+            }
+            return sudokuGrid;
+            //throw new NotImplementedException();
         }
     }
 }
