@@ -190,7 +190,10 @@ namespace SudokuSolver
         }
         internal bool IsCorrect()
         {
-            throw new NotImplementedException();
+            var allHVRowAreZero = HVRow.All(o => o == 0);
+            var allHVColumnAreZero = HVColumn.All(o => o == 0);
+            if(allHVColumnAreZero&&allHVRowAreZero) return true;
+            else return false;
         }
         internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
         {
