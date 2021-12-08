@@ -194,7 +194,19 @@ namespace SudokuSolver
         }
         internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
         {
-            throw new NotImplementedException();
+            byte[] values = new byte[GridSize * GridSize];
+            for (int x = 0; x < GridSize; x++)
+                for (int y = 0; y < GridSize; y++)
+                {
+                    if(x == x1 && y == y1)
+                        values[x + y * GridSize] = GridValues[x2, y2];
+                    if (x == x2 && y == y2)
+                        values[x + y * GridSize] = GridValues[x1, y1];
+                    else
+                        values[x + y * GridSize] = GridValues[x, y];
+                }
+            return new SudokuGrid(boxSize, values);
+            
         }
     }
 }
