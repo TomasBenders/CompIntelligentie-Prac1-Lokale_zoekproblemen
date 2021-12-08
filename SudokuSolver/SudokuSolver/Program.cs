@@ -5,9 +5,16 @@ using SudokuSolver.Properties;
 List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
 for (int i = 0; i < sudokuGrids.Count; i++)
 {
-    sudokuGrids[i].posX = i * 20 % 40;
-    sudokuGrids[i].posY = i / 2 * 10;
-    sudokuGrids[i].PrintGrid();
-}
+    sudokuGrids[i].posY = i * 10;
+    sudokuGrids[i].PrintGrid(false);
 
-sudokuGrids[0].PrintBestSuccessor(0, 0, 5, 5);
+    sudokuGrids[i].posX += 20;
+    sudokuGrids[i].GenFilledInGrid();
+    sudokuGrids[i].CalcAllHeuristicCosts();
+    sudokuGrids[i].PrintGrid(false);
+
+    sudokuGrids[i].posX += 20;
+    //ILS.GetBetterOrEqualSuccessor(sudokuGrids[i], 1, 1, out _);
+    //ILS.RandomWalk(sudokuGrids[i], 2);
+    var localMaxima = ILS.HillClimb(sudokuGrids[i]);
+}
