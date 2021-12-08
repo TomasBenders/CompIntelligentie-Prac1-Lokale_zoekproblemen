@@ -163,14 +163,31 @@ namespace SudokuSolver
         }
         internal void FillInZeroes()
         {
-            for (int x = 0; x < GridSize; x++)
-                for (int y = 0; y < GridSize; y++)
+            for (int x = 0; x < 3; x++)
+                for (int y = 0; y < 3; y++)
                 {
-                    if (GridValues[x,y] < 0)
-                    {
-                        GridValues[x, y] = 0;
-                    }
+                    List<int> notInBox = new List<int>();
+                    for (int i = 1; i < (boxSize * boxSize + 1); i++)
+                        notInBox.Add(i);
+                    for (int bx = 0; bx < boxSize; x++)
+                        for (int by = 0; by < boxSize; y++)
+                        {
+                            if (GridValues[bx + x * 3, by + y * 3] < 0)
+                            {
+                                notInBox.Remove(Math.Abs(GridValues[bx + x * 3, by + y * 3]));
+                            }
+                        }
+                    for (int bx = 0; bx < boxSize; x++)
+                        for (int by = 0; by < boxSize; y++)
+                        {
+                            if (GridValues[bx + x * 3, by + y * 3] >= 0)
+                            {
+                                GridValues[bx + x * 3, by + y * 3] = (byte)notInBox[0];
+                                notInBox.RemoveAt(0);
+                            }
+                        }
                 }
+
         }
 
         /// <summary>
@@ -207,7 +224,7 @@ namespace SudokuSolver
                 {
                     if(x == x1 && y == y1)
                         values[x + y * GridSize] = GridValues[x2, y2];
-                    if (x == x2 && y == y2)
+                    else if (x == x2 && y == y2)
                         values[x + y * GridSize] = GridValues[x1, y1];
                     else
                         values[x + y * GridSize] = GridValues[x, y];
