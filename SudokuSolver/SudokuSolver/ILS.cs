@@ -55,7 +55,26 @@ namespace SudokuSolver
 
         private SudokuGrid HillClimb(SudokuGrid sudokuGrid)
         {
-            throw new NotImplementedException();
+            SudokuGrid newgrid = sudokuGrid;
+            bool uphill = true;
+            int flatTolerance = 5;
+            int timesOnFlat = 0;
+            while (uphill)
+            {
+                int box = rnd.Next(0, 8);
+                SudokuGrid potentialgrid;
+                bool different = GetBetterOrEqualSuccessor(newgrid, (box % 3), (box / 3), out potentialgrid);
+                if (different)
+                {
+                    newgrid = potentialgrid;
+                    timesOnFlat = 0;
+                }
+                else
+                    timesOnFlat++;
+                if (timesOnFlat >= flatTolerance)
+                    uphill = false;
+            }
+            return sudokuGrid;
         }
 
         private SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)

@@ -163,7 +163,14 @@ namespace SudokuSolver
         }
         internal void FillInZeroes()
         {
-            throw new NotImplementedException();
+            for (int x = 0; x < GridSize; x++)
+                for (int y = 0; y < GridSize; y++)
+                {
+                    if (GridValues[x,y] < 0)
+                    {
+                        GridValues[x, y] = 0;
+                    }
+                }
         }
 
         /// <summary>
