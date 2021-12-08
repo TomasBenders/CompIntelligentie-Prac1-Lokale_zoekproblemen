@@ -86,7 +86,7 @@ namespace SudokuSolver
 
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)
-                    GridValues[x, y] = values[x + y * GridSize];
+                    GridValues[x, y] = -values[x + y * GridSize];
 
             return result;
         }
@@ -136,7 +136,7 @@ namespace SudokuSolver
         /// <summary>
         /// Prints the grid to the console and colors two values red, indicating a swap.
         /// </summary>
-        internal void PrintBestSuccessor(int x1, int y1, int x2, int y2)
+        internal void PrintBestSuccessor(int x1, int y1, int x2, int y2, bool absAll = true)
         {
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)
@@ -144,13 +144,13 @@ namespace SudokuSolver
                     Console.SetCursorPosition(posX + x * 2, posY + y);
                     bool shouldUnderLine = y % 3 == 2 && y != 8;
                     bool isCoordOfSwap = (x == x1 && y == y1) || (x == x2 && y == y2);
-                    Utils.WriteUnderline(GridValues[x, y].ToString(), shouldUnderLine, isCoordOfSwap ? ConsoleColor.Red : null);
+                    Utils.WriteUnderline(Math.Abs(GridValues[x, y]).ToString(), shouldUnderLine, isCoordOfSwap ? ConsoleColor.Red : null);
                     Utils.WriteUnderline(x < GridSize - 1 ? (x % 3 == 2 ? "|" : " ") : "", shouldUnderLine, null);
                 }
         }
-        internal void PrintGrid()
+        internal void PrintGrid(bool absAll = true)
         {
-            PrintBestSuccessor(-1, -1, -1, -1);
+            PrintBestSuccessor(-1, -1, -1, -1, true);
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace SudokuSolver
                         {
                             if (GridValues[bx + x * 3, by + y * 3] >= 0)
                             {
-                                GridValues[bx + x * 3, by + y * 3] = (int)notInBox[0];
+                                GridValues[bx + x * 3, by + y * 3] = notInBox[0];
                                 notInBox.RemoveAt(0);
                             }
                         }
