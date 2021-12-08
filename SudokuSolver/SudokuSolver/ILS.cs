@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SudokuSolver
 {
-    internal class ILS
+    static internal class ILS
     {
         // Used to select a random box to find successors from
-        readonly Random rnd = new();
+        static readonly Random rnd = new();
 
         /// <summary>
         /// Returns whether a better or equal successor exists and if there is returns it through the out parameter
@@ -19,12 +19,12 @@ namespace SudokuSolver
         /// <param name="boxX"> The x coordinate of the box within the grid for which to search for successors </param>
         /// <param name="boxY"> The y coordinate of the box within the grid for which to search for successors </param>
         /// <returns> <c>bool</c> for if there exists a better or equal successor </returns>
-        private bool GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
+        static internal bool GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
         {
             bool foundBetterOrEqualSuccessor = false;
             (int x1, int y1, int x2, int y2, SudokuGrid) bestSuccessor = (-1, -1, -1, -1, sudokuGrid);
 
-            byte[,] box = sudokuGrid.GetBox(boxX, boxY);
+            int[,] box = sudokuGrid.GetBox(boxX, boxY);
 
             for (int x1 = 0; x1 < sudokuGrid.boxSize; x1++)
                 for (int y1 = 0; y1 < sudokuGrid.boxSize; y1++)
@@ -53,7 +53,7 @@ namespace SudokuSolver
             return foundBetterOrEqualSuccessor;
         }
 
-        private SudokuGrid HillClimb(SudokuGrid sudokuGrid)
+        static internal SudokuGrid HillClimb(SudokuGrid sudokuGrid)
         {
             SudokuGrid newgrid = sudokuGrid;
             bool uphill = true;
@@ -77,7 +77,7 @@ namespace SudokuSolver
             return sudokuGrid;
         }
 
-        private SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
+        static internal SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
         {
             for (int i = 0; i < s; i++)
             {

@@ -39,7 +39,7 @@ namespace SudokuSolver
         /// The values within the grid. 
         /// A negative value indicates a value that cant be swapped.
         /// </summary>
-        byte[,] GridValues { get; init; }
+        int[,] GridValues { get; init; }
         /// <summary>
         /// The Heuristic Value of each Row
         /// </summary>
@@ -55,17 +55,17 @@ namespace SudokuSolver
         /// </summary>
         internal int HeuristicValue { get => HVColumn.Sum() + HVRow.Sum(); }
 
-        internal byte[] GetRow(int row)
+        internal int[] GetRow(int row)
         {
             throw new NotImplementedException();
         }
-        internal byte[] GetColumn(int column)
+        internal int[] GetColumn(int column)
         {
             throw new NotImplementedException();
         }
-        internal byte[,] GetBox(int x, int y)
+        internal int[,] GetBox(int x, int y)
         {
-            byte[,] result = new byte[boxSize, boxSize];
+            int[,] result = new int[boxSize, boxSize];
 
             for (int x1 = 0; x1 < boxSize; x1++)
                 for (int y1 = 0; y1 < boxSize; y1++)
@@ -75,11 +75,11 @@ namespace SudokuSolver
         }
 
         /// <summary>
-        /// Converts a 1D byte array to a 2D byteArray as large as the sudoku grid
+        /// Converts a 1D int array to a 2D intArray as large as the sudoku grid
         /// </summary>
-        private byte[,] FromByteArray(byte[] values)
+        private int[,] FromintArray(int[] values)
         {
-            byte[,] result = GridValues;
+            int[,] result = GridValues;
             if (values.Length != result.Length)
                 throw new ArgumentException($"Array of sudoku values is not as big as the sudoku grid. " +
                     $"Values length: {values.Length}. Grid length: {result.Length}");
@@ -92,7 +92,7 @@ namespace SudokuSolver
         }
 
         /// <summary>
-        /// Creates a sudoku grid from byte values
+        /// Creates a sudoku grid from int values
         /// </summary>
         /// <param name="subGridSize"> 
         /// The width and height of a box/subgrid within the suduko 
@@ -103,17 +103,17 @@ namespace SudokuSolver
         /// <exception cref="ArgumentException"> 
         /// If the amount of given values does not form a valid sudoku grid 
         /// </exception>
-        internal SudokuGrid(int subGridSize, byte[] values)
+        internal SudokuGrid(int subGridSize, int[] values)
         {
             if (subGridSize % 3 != 0)
                 throw new ArgumentException($"Size of grid must be divisable by 3. value was: {values.Length}");
             boxSize = subGridSize;
-            GridValues = new byte[GridSize, GridSize];
+            GridValues = new int[GridSize, GridSize];
             HVRow = HVColumn = new int[GridSize];
-            GridValues = FromByteArray(values);
+            GridValues = FromintArray(values);
         }
         /// <summary>
-        /// Creates a sudoku grid from a string of byte values
+        /// Creates a sudoku grid from a string of int values
         /// </summary>
         /// <param name="subGridSize"> 
         /// The width and height of a box/subgrid within the suduko 
@@ -128,9 +128,9 @@ namespace SudokuSolver
         {
             string[] split = values.Split();
             boxSize = subGridSize;
-            GridValues = new byte[GridSize, GridSize];
+            GridValues = new int[GridSize, GridSize];
             HVRow = HVColumn = new int[GridSize];
-            GridValues = FromByteArray(split.Select(byte.Parse).ToArray());
+            GridValues = FromintArray(split.Select(int.Parse).ToArray());
         }
 
         /// <summary>
@@ -175,20 +175,20 @@ namespace SudokuSolver
                     List<int> notInBox = new List<int>();
                     for (int i = 1; i < (boxSize * boxSize + 1); i++)
                         notInBox.Add(i);
-                    for (int bx = 0; bx < boxSize; x++)
-                        for (int by = 0; by < boxSize; y++)
+                    for (int bx = 0; bx < boxSize; bx++)
+                        for (int by = 0; by < boxSize; by++)
                         {
                             if (GridValues[bx + x * 3, by + y * 3] < 0)
                             {
                                 notInBox.Remove(Math.Abs(GridValues[bx + x * 3, by + y * 3]));
                             }
                         }
-                    for (int bx = 0; bx < boxSize; x++)
-                        for (int by = 0; by < boxSize; y++)
+                    for (int bx = 0; bx < boxSize; bx++)
+                        for (int by = 0; by < boxSize; by++)
                         {
                             if (GridValues[bx + x * 3, by + y * 3] >= 0)
                             {
-                                GridValues[bx + x * 3, by + y * 3] = (byte)notInBox[0];
+                                GridValues[bx + x * 3, by + y * 3] = (int)notInBox[0];
                                 notInBox.RemoveAt(0);
                             }
                         }
@@ -202,8 +202,8 @@ namespace SudokuSolver
         internal void CalcHeuristicRow(int row)
         {
             int r = 0;
-            HashSet<byte> seen = new();
-            foreach (byte value in GetRow(row))
+            HashSet<int> seen = new();
+            foreach (int value in GetRow(row))
                 r += seen.Add(value) ? 0 : 1;
             HVRow[row] = r;
         }
@@ -213,8 +213,8 @@ namespace SudokuSolver
         internal void CalcHeuristicColumn(int column)
         {
             int r = 0;
-            HashSet<byte> seen = new();
-            foreach (byte value in GetColumn(column))
+            HashSet<int> seen = new();
+            foreach (int value in GetColumn(column))
                 r += seen.Add(value) ? 0 : 1;
             HVRow[column] = r;
         }
@@ -227,7 +227,7 @@ namespace SudokuSolver
         }
         internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
         {
-            byte[] values = new byte[GridSize * GridSize];
+            int[] values = new int[GridSize * GridSize];
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)
                 {
