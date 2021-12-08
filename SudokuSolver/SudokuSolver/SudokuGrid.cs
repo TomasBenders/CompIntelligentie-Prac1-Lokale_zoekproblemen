@@ -149,7 +149,7 @@ namespace SudokuSolver
         /// <summary>
         /// Prints the grid to the console and colors two values red, indicating a swap.
         /// </summary>
-        internal void PrintBestSuccessor(int x1, int y1, int x2, int y2, bool absAll = true)
+        internal void PrintSwap(int x1, int y1, int x2, int y2, bool absAll = true)
         {
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)
@@ -163,7 +163,7 @@ namespace SudokuSolver
         }
         internal void PrintGrid(bool absAll = true)
         {
-            PrintBestSuccessor(-1, -1, -1, -1, true);
+            PrintSwap(-1, -1, -1, -1, true);
         }
 
         /// <summary>

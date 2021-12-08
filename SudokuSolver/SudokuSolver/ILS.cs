@@ -51,7 +51,7 @@ namespace SudokuSolver
 
             successor = bestSuccessor.grid;
             if (foundBetterOrEqualSuccessor)
-                successor.PrintBestSuccessor(
+                successor.PrintSwap(
                     boxX + bestSuccessor.x1,
                     boxY + bestSuccessor.y1,
                     boxX + bestSuccessor.x2,
@@ -85,27 +85,30 @@ namespace SudokuSolver
 
         static internal SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
         {
-            for (int i = 0; i < s; i++)
+            if (s < 0)
+                return sudokuGrid;
+
+            int whichsquarex = rnd.Next(0, sudokuGrid.boxSize);
+            int whichsquarey = rnd.Next(0, sudokuGrid.boxSize);
+            int x1 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
+                whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
+            int y1 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
+                whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
+            int x2;
+            int y2;
+
+            do
             {
-                int whichsquarex = rnd.Next(0, 2);
-                int whichsquarey = rnd.Next(0, 2);
-                int x1 = rnd.Next(0, 2);
-                int y1 = rnd.Next(0, 2);
-                int x2;
-                int y2;
-
-                do
-                {
-                    x2 = rnd.Next(0, 2);
-                    y2 = rnd.Next(0, 2);
-                }
-                while (x2 == x1 && y2 == y1);
-                
-                return sudokuGrid.Swap(x1+whichsquarex*3, y1 + whichsquarey * 3, x2 + whichsquarex * 3, y2 + whichsquarey * 3);
-
+                x2 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
+                    whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
+                y2 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
+                    whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
             }
-            return sudokuGrid;
-            //throw new NotImplementedException();
+            while (x2 == x1 && y2 == y1);
+
+            SudokuGrid walked = sudokuGrid.Swap(x1, y1, x2, y2);
+            walked.PrintSwap(x1, y1, x2, y2);
+            return RandomWalk(walked, --s);
         }
     }
 }
