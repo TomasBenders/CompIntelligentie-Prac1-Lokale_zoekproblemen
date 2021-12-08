@@ -22,9 +22,11 @@ namespace SudokuSolver
         static internal bool GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
         {
             bool foundBetterOrEqualSuccessor = false;
-            (int x1, int y1, int x2, int y2, SudokuGrid) bestSuccessor = (-1, -1, -1, -1, sudokuGrid);
+            (int x1, int y1, int x2, int y2, SudokuGrid grid) bestSuccessor = (-1, -1, -1, -1, sudokuGrid);
 
             int[,] box = sudokuGrid.GetBox(boxX, boxY);
+            boxX *= sudokuGrid.boxSize;
+            boxY *= sudokuGrid.boxSize;
 
             for (int x1 = 0; x1 < sudokuGrid.boxSize; x1++)
                 for (int y1 = 0; y1 < sudokuGrid.boxSize; y1++)
@@ -38,8 +40,8 @@ namespace SudokuSolver
                             if (Math.Sign(box[x2, y2]) == -1)
                                 continue;
 
-                            successor = sudokuGrid.Swap(x1, y1, x2, y2);
-                            if (successor.HeuristicValue >= bestSuccessor.Item5.HeuristicValue)
+                            successor = sudokuGrid.Swap(boxX + x1, boxY + y1, boxX + x2, boxY + y2);
+                            if (successor.HeuristicValue >= bestSuccessor.grid.HeuristicValue)
                             {
                                 foundBetterOrEqualSuccessor = true;
                                 bestSuccessor = (x1, y1, x2, y2, successor);
@@ -47,9 +49,13 @@ namespace SudokuSolver
                         }
                 }
 
-            successor = bestSuccessor.Item5;
+            successor = bestSuccessor.grid;
             if (foundBetterOrEqualSuccessor)
-                bestSuccessor.Item5.PrintBestSuccessor(bestSuccessor.Item1, bestSuccessor.Item2, bestSuccessor.Item3, bestSuccessor.Item4);
+                successor.PrintBestSuccessor(
+                    boxX + bestSuccessor.x1,
+                    boxY + bestSuccessor.y1,
+                    boxX + bestSuccessor.x2,
+                    boxY + bestSuccessor.y2);
             return foundBetterOrEqualSuccessor;
         }
 

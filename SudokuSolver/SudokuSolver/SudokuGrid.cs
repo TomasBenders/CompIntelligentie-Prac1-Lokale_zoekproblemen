@@ -260,7 +260,9 @@ namespace SudokuSolver
                         values[x + y * GridSize] = GridValues[x, y];
                 }
 
-            return new SudokuGrid(boxSize, values) { posX=posX, posY=posY};
+            SudokuGrid swapped = new SudokuGrid(boxSize, values) { posX=posX, posY=posY};
+            swapped.CalcAllHeuristicCosts();
+            return swapped;
         }
     }
 }
