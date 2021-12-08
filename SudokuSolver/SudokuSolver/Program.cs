@@ -6,12 +6,12 @@ List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_
 for (int i = 0; i < sudokuGrids.Count; i++)
 {
     sudokuGrids[i].posY = i * 10;
-    sudokuGrids[i].PrintGrid(false);
+    sudokuGrids[i].PrintGrid();
 
     sudokuGrids[i].posX += 20;
     sudokuGrids[i].GenFilledInGrid();
     sudokuGrids[i].CalcAllHeuristicCosts();
-    sudokuGrids[i].PrintGrid(false);
+    sudokuGrids[i].PrintGrid();
 
     sudokuGrids[i].posX += 20;
     //ILS.GetBetterOrEqualSuccessor(sudokuGrids[i], 1, 1, out _);
