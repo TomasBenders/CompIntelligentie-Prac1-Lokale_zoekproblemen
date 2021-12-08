@@ -80,6 +80,7 @@ namespace SudokuSolver
                     result[x1, y1] = GridValues[x * boxSize + x1, y * boxSize + y1];
 
             return result;
+        
         }
 
         /// <summary>
@@ -117,7 +118,8 @@ namespace SudokuSolver
                 throw new ArgumentException($"Size of grid must be divisable by 3. value was: {values.Length}");
             boxSize = subGridSize;
             GridValues = new int[GridSize, GridSize];
-            HVRow = HVColumn = new int[GridSize];
+            HVRow = new int[GridSize];
+            HVColumn = new int[GridSize];
             GridValues = FromintArray(values);
         }
         /// <summary>
@@ -134,10 +136,13 @@ namespace SudokuSolver
         /// </exception>
         internal SudokuGrid(int subGridSize, string values)
         {
+            if (subGridSize % 3 != 0)
+                throw new ArgumentException($"Size of grid must be divisable by 3. value was: {values.Length}");
             string[] split = values.Split();
             boxSize = subGridSize;
             GridValues = new int[GridSize, GridSize];
-            HVRow = HVColumn = new int[GridSize];
+            HVRow = new int[GridSize];
+            HVColumn = new int[GridSize];
             GridValues = FromintArray(split.Select(int.Parse).ToArray());
         }
 
@@ -212,7 +217,7 @@ namespace SudokuSolver
             int r = 0;
             HashSet<int> seen = new();
             foreach (int value in GetRow(row))
-                r += seen.Add(value) ? 0 : 1;
+                r += seen.Add(Math.Abs(value)) ? 0 : 1;
             HVRow[row] = r;
         }
         /// <summary>
@@ -223,8 +228,16 @@ namespace SudokuSolver
             int r = 0;
             HashSet<int> seen = new();
             foreach (int value in GetColumn(column))
-                r += seen.Add(value) ? 0 : 1;
-            HVRow[column] = r;
+                r += seen.Add(Math.Abs(value)) ? 0 : 1;
+            HVColumn[column] = r;
+        }
+        internal void CalcAllHeuristicCosts()
+        {
+            for (int i = 0; i < GridSize; i++)
+            {
+                CalcHeuristicRow(i);
+                CalcHeuristicColumn(i);
+            }
         }
         internal bool IsCorrect()
         {
