@@ -65,7 +65,13 @@ namespace SudokuSolver
         }
         internal byte[,] GetBox(int x, int y)
         {
-            throw new NotImplementedException();
+            byte[,] result = new byte[boxSize, boxSize];
+
+            for (int x1 = 0; x1 < boxSize; x1++)
+                for (int y1 = 0; y1 < boxSize; y1++)
+                    result[x1, y1] = GridValues[x * boxSize + x1, y * boxSize + y1];
+
+            return result;
         }
 
         /// <summary>
