@@ -238,8 +238,8 @@ namespace SudokuSolver
                     else
                         values[x + y * GridSize] = GridValues[x, y];
                 }
-            return new SudokuGrid(boxSize, values);
-            
+
+            return new SudokuGrid(boxSize, values) { posX=posX, posY=posY};
         }
     }
 }
