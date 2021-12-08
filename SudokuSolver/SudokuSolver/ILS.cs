@@ -62,49 +62,21 @@ namespace SudokuSolver
         {
             for (int i = 0; i < s; i++)
             {
-                int whichsquare = rnd.Next(0, 8);
+                int whichsquarex = rnd.Next(0, 2);
+                int whichsquarey = rnd.Next(0, 2);
                 int x1 = rnd.Next(0, 2);
                 int y1 = rnd.Next(0, 2);
-                int x2 = x1;
-                int y2 = y1;
-                bool notfit = true;
-                while (notfit)
-                {
-                    int direction = rnd.Next(0, 3);
-                    switch (direction)
-                    {
-                        case 0:
-                            if (y1 != 0)
-                            {
-                                notfit = false;
-                                y2 = y1 - 1;
-                            }
-                            break;
-                        case 1:
-                            if (x1 != 0)
-                            {
-                                notfit = false;
-                                x2 = x1 - 1;
-                            }
-                            break;
-                        case 2:
-                            if (y1 != 2)
-                            {
-                                notfit = false;
-                                y2 = y1 + 1;
-                            }
-                            break;
-                        case 3:
-                            if (x1 != 2)
-                            {
-                                notfit = false;
-                                x2 = x1 + 1;
-                            }
-                            break;
-                    }
+                int x2;
+                int y2;
 
+                do
+                {
+                    x2 = rnd.Next(0, 2);
+                    y2 = rnd.Next(0, 2);
                 }
-                return sudokuGrid.Swap(x1, y1, x2, y2);
+                while (x2 == x1 && y2 == y1);
+                
+                return sudokuGrid.Swap(x1+whichsquarex*3, y1 + whichsquarey * 3, x2 + whichsquarex * 3, y2 + whichsquarey * 3);
 
             }
             return sudokuGrid;
