@@ -57,11 +57,19 @@ namespace SudokuSolver
 
         internal int[] GetRow(int row)
         {
-            throw new NotImplementedException();
+            int[] result = new int[GridSize];
+            for (int x = 0; x < GridSize; x++)
+                result[x] = GridValues[x,row];
+
+            return result;
         }
         internal int[] GetColumn(int column)
         {
-            throw new NotImplementedException();
+            int[] result = new int[GridSize];
+            for (int y = 0; y < GridSize; y++)
+                result[y] = GridValues[column, y];
+
+            return result;
         }
         internal int[,] GetBox(int x, int y)
         {
