@@ -95,7 +95,7 @@ namespace SudokuSolver
 
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)
-                    GridValues[x, y] = -values[x + y * GridSize];
+                    GridValues[x, y] = values[x + y * GridSize];
 
             return result;
         }
@@ -157,13 +157,14 @@ namespace SudokuSolver
                     Console.SetCursorPosition(posX + x * 2, posY + y);
                     bool shouldUnderLine = y % 3 == 2 && y != 8;
                     bool isCoordOfSwap = (x == x1 && y == y1) || (x == x2 && y == y2);
-                    Utils.WriteUnderline(Math.Abs(GridValues[x, y]).ToString(), shouldUnderLine, isCoordOfSwap ? ConsoleColor.Red : null);
+                    int value = absAll ? Math.Abs(GridValues[x, y]) : GridValues[x, y];
+                    Utils.WriteUnderline(value.ToString(), shouldUnderLine, isCoordOfSwap ? ConsoleColor.Red : null);
                     Utils.WriteUnderline(x < GridSize - 1 ? (x % 3 == 2 ? "|" : " ") : "", shouldUnderLine, null);
                 }
         }
         internal void PrintGrid(bool absAll = true)
         {
-            PrintSwap(-1, -1, -1, -1, true);
+            PrintSwap(-1, -1, -1, -1, absAll);
         }
 
         /// <summary>
@@ -180,7 +181,7 @@ namespace SudokuSolver
                 result.Add(new SudokuGrid(3, lines[i].Trim()));
             return result;
         }
-        internal void FillInZeroes()
+        internal void GenFilledInGrid()
         {
             for (int x = 0; x < 3; x++)
                 for (int y = 0; y < 3; y++)
@@ -191,19 +192,21 @@ namespace SudokuSolver
                     for (int bx = 0; bx < boxSize; bx++)
                         for (int by = 0; by < boxSize; by++)
                         {
-                            if (GridValues[bx + x * 3, by + y * 3] < 0)
+                            if (GridValues[bx + x * 3, by + y * 3] != 0)
                             {
-                                notInBox.Remove(Math.Abs(GridValues[bx + x * 3, by + y * 3]));
+                                notInBox.Remove(GridValues[bx + x * 3, by + y * 3]);
                             }
                         }
                     for (int bx = 0; bx < boxSize; bx++)
                         for (int by = 0; by < boxSize; by++)
                         {
-                            if (GridValues[bx + x * 3, by + y * 3] >= 0)
+                            if (GridValues[bx + x * 3, by + y * 3] == 0)
                             {
                                 GridValues[bx + x * 3, by + y * 3] = notInBox[0];
                                 notInBox.RemoveAt(0);
                             }
+                            else
+                                GridValues[bx + x * 3, by + y * 3] *= -1;
                         }
                 }
 
@@ -248,6 +251,9 @@ namespace SudokuSolver
         }
         internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
         {
+            if (Math.Sign(GridValues[x1, y1]) == -1 || Math.Sign(GridValues[x2, y2]) == -1)
+                throw new ArgumentException("bro das een gefixeerde");
+
             int[] values = new int[GridSize * GridSize];
             for (int x = 0; x < GridSize; x++)
                 for (int y = 0; y < GridSize; y++)

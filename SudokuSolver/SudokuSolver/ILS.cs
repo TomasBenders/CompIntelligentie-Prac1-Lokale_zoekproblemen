@@ -37,11 +37,12 @@ namespace SudokuSolver
                     for (int x2 = 0; x2 < sudokuGrid.boxSize; x2++)
                         for (int y2 = 0; y2 < sudokuGrid.boxSize; y2++)
                         {
-                            if (Math.Sign(box[x2, y2]) == -1)
+                            if (Math.Sign(box[x2, y2]) == -1 ||
+                                (x1 == x2 && y1 == y2))
                                 continue;
 
                             successor = sudokuGrid.Swap(boxX + x1, boxY + y1, boxX + x2, boxY + y2);
-                            if (successor.HeuristicValue >= bestSuccessor.grid.HeuristicValue)
+                            if (successor.HeuristicValue <= bestSuccessor.grid.HeuristicValue)
                             {
                                 foundBetterOrEqualSuccessor = true;
                                 bestSuccessor = (x1, y1, x2, y2, successor);
@@ -80,7 +81,7 @@ namespace SudokuSolver
                 if (timesOnFlat >= flatTolerance)
                     uphill = false;
             }
-            return sudokuGrid;
+            return newgrid;
         }
 
         static internal SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
