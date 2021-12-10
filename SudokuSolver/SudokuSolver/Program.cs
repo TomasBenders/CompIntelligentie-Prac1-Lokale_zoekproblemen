@@ -17,5 +17,5 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     //ILS.GetBetterOrEqualSuccessor(sudokuGrids[i], 1, 1, out _);
     //ILS.RandomWalk(sudokuGrids[i], 2);
     //var localMaxima = ILS.HillClimb(sudokuGrids[i]);
-    var localMaxima = ILS.IterativeLocalSearch(sudokuGrids[i], 5, 5);
+    var localMaxima = ILS.IterativeLocalSearch(sudokuGrids[i], 50, 10);
 }

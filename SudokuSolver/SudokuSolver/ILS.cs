@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace SudokuSolver
 {
+    internal enum WEB { worse,equal,better}; 
     static internal class ILS
     {
         // Used to select a random box to find successors from
@@ -13,16 +14,17 @@ namespace SudokuSolver
 
         static internal SudokuGrid IterativeLocalSearch(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps)
         {
-            int bestScore = int.MaxValue;
+            SudokuGrid best = sudokuGrid;
             SudokuGrid localMax = sudokuGrid;
             for (int i = 0; i < 10; i++)
             {
                 localMax = HillClimb(localMax, flatTolerance);
-                bestScore = Math.Min(bestScore,localMax.HeuristicValue);
+                if(localMax.HeuristicValue > best.HeuristicValue)
+                    best = localMax;
                 if (localMax.HeuristicValue == 0) break;
                 localMax = RandomWalk(localMax, randomSteps);
             }
-            return localMax;
+            return best;
         }
         /// <summary>
         /// Returns whether a better or equal successor exists and if there is returns it through the out parameter
@@ -32,9 +34,9 @@ namespace SudokuSolver
         /// <param name="boxX"> The x coordinate of the box within the grid for which to search for successors </param>
         /// <param name="boxY"> The y coordinate of the box within the grid for which to search for successors </param>
         /// <returns> <c>bool</c> for if there exists a better or equal successor </returns>
-        static internal bool GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
+        static internal WEB GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
         {
-            bool foundBetterOrEqualSuccessor = false;
+            WEB web = WEB.worse;
             (int x1, int y1, int x2, int y2, SudokuGrid grid) bestSuccessor = (-1, -1, -1, -1, sudokuGrid);
 
             int[,] box = sudokuGrid.GetBox(boxX, boxY);
@@ -55,43 +57,60 @@ namespace SudokuSolver
                                 continue;
 
                             successor = sudokuGrid.Swap(boxX + x1, boxY + y1, boxX + x2, boxY + y2);
-                            if (successor.HeuristicValue <= bestSuccessor.grid.HeuristicValue)
+                            if (successor.HeuristicValue < bestSuccessor.grid.HeuristicValue)
                             {
-                                foundBetterOrEqualSuccessor = true;
+                                web = WEB.better;
+                                bestSuccessor = (x1, y1, x2, y2, successor);
+                            }
+                            else if (web != WEB.better && successor.HeuristicValue == bestSuccessor.grid.HeuristicValue)
+                            {
+                                web = WEB.equal;
                                 bestSuccessor = (x1, y1, x2, y2, successor);
                             }
                         }
                 }
 
             successor = bestSuccessor.grid;
-            if (foundBetterOrEqualSuccessor)
+            if (web != WEB.worse)
                 successor.PrintSwap(
                     boxX + bestSuccessor.x1,
                     boxY + bestSuccessor.y1,
                     boxX + bestSuccessor.x2,
                     boxY + bestSuccessor.y2);
-            return foundBetterOrEqualSuccessor;
+            return web;
         }
 
         static internal SudokuGrid HillClimb(SudokuGrid sudokuGrid, int flatTolerance)
         {
             SudokuGrid newgrid = sudokuGrid;
             bool uphill = true;
-            int timesOnFlat = 0;
+            int timesConsecutiveWorse = 0;
+            int timesConsecutiveWorseOrEqual = 0;
+            int box = 0;
             while (uphill)
             {
-                int box = rnd.Next(0, 8);
-                SudokuGrid potentialgrid;
-                bool different = GetBetterOrEqualSuccessor(newgrid, (box % 3), (box / 3), out potentialgrid);
-                if (different)
+                WEB web = GetBetterOrEqualSuccessor(newgrid, (box % 3), (box / 3), out SudokuGrid potentialgrid);
+                if (web == WEB.worse)
                 {
-                    newgrid = potentialgrid;
-                    timesOnFlat = 0;
+                    timesConsecutiveWorse++;
+                    timesConsecutiveWorseOrEqual++;
+                }
+                else if (web == WEB.equal)
+                {
+                    timesConsecutiveWorse = 0;
+                    timesConsecutiveWorseOrEqual++;
                 }
                 else
-                    timesOnFlat++;
-                if (timesOnFlat >= flatTolerance)
+                {
+                    newgrid = potentialgrid;
+                    timesConsecutiveWorse = 0;
+                    timesConsecutiveWorseOrEqual = 0;
+                }
+                if (timesConsecutiveWorse >= 9 || timesConsecutiveWorseOrEqual >= flatTolerance)
                     uphill = false;
+
+                box++;
+                box %= 9;
             }
             return newgrid;
         }
