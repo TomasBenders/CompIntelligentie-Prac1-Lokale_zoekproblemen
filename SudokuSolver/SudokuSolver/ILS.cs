@@ -19,7 +19,7 @@ namespace SudokuSolver
             for (int i = 0; i < 10; i++)
             {
                 localMax = HillClimb(localMax, flatTolerance);
-                if(localMax.HeuristicValue > best.HeuristicValue)
+                if(localMax.HeuristicValue < best.HeuristicValue)
                     best = localMax;
                 if (localMax.HeuristicValue == 0) break;
                 localMax = RandomWalk(localMax, randomSteps);

@@ -166,6 +166,11 @@ namespace SudokuSolver
         {
             PrintSwap(-1, -1, -1, -1, absAll);
         }
+        internal void PrintScore()
+        {
+            Console.SetCursorPosition(posX, posY);
+            Console.Write($"Score: {HeuristicValue}");
+        }
 
         /// <summary>
         /// Parses a text file containing multiple unsolved sudokus
