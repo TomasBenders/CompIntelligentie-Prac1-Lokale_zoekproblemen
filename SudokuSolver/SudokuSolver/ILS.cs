@@ -11,6 +11,19 @@ namespace SudokuSolver
         // Used to select a random box to find successors from
         static readonly Random rnd = new();
 
+        static internal SudokuGrid IterativeLocalSearch(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps)
+        {
+            int bestScore = int.MaxValue;
+            SudokuGrid localMax = sudokuGrid;
+            for (int i = 0; i < 10; i++)
+            {
+                localMax = HillClimb(localMax, flatTolerance);
+                bestScore = Math.Min(bestScore,localMax.HeuristicValue);
+                if (localMax.HeuristicValue == 0) break;
+                localMax = RandomWalk(localMax, randomSteps);
+            }
+            return localMax;
+        }
         /// <summary>
         /// Returns whether a better or equal successor exists and if there is returns it through the out parameter
         /// </summary>
@@ -60,11 +73,10 @@ namespace SudokuSolver
             return foundBetterOrEqualSuccessor;
         }
 
-        static internal SudokuGrid HillClimb(SudokuGrid sudokuGrid)
+        static internal SudokuGrid HillClimb(SudokuGrid sudokuGrid, int flatTolerance)
         {
             SudokuGrid newgrid = sudokuGrid;
             bool uphill = true;
-            int flatTolerance = 5;
             int timesOnFlat = 0;
             while (uphill)
             {
@@ -91,13 +103,20 @@ namespace SudokuSolver
 
             int whichsquarex = rnd.Next(0, sudokuGrid.boxSize);
             int whichsquarey = rnd.Next(0, sudokuGrid.boxSize);
-            int x1 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
-                whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
-            int y1 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
-                whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
+
+            int x1;
+            int y1;
+            do 
+            {
+                x1 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
+                    whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
+                y1 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
+                    whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
+            }
+            while (Math.Sign(sudokuGrid.GridValues[x1, y1]) == -1);
+            
             int x2;
             int y2;
-
             do
             {
                 x2 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
@@ -105,7 +124,7 @@ namespace SudokuSolver
                 y2 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
                     whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
             }
-            while (x2 == x1 && y2 == y1);
+            while ((x2 == x1 && y2 == y1) || Math.Sign(sudokuGrid.GridValues[x2, y2]) == -1);
 
             SudokuGrid walked = sudokuGrid.Swap(x1, y1, x2, y2);
             walked.PrintSwap(x1, y1, x2, y2);

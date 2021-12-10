@@ -34,32 +34,11 @@ namespace SudokuSolver
         /// The x position this grid will be drawn at
         /// </summary>
         internal int posY = 0;
-
-        /// <summary>
-        /// The values within the grid. 
-        /// A negative value indicates a value that cant be swapped.
-        /// </summary>
-        int[,] GridValues { get; init; }
-        /// <summary>
-        /// The Heuristic Value of each Row
-        /// </summary>
-        int[] HVRow { get; init; }
-        /// <summary>
-        /// The Heuristic Value of each Column
-        /// </summary>
-        int[] HVColumn { get; init; }
-        /// <summary>
-        /// The Heuristic Value of the entire grid. 
-        /// This is used to determine how incorrect the grid is.
-        /// 0 being optimal/correct, anything higher being more and more incorrect
-        /// </summary>
-        internal int HeuristicValue { get => HVColumn.Sum() + HVRow.Sum(); }
-
         internal int[] GetRow(int row)
         {
             int[] result = new int[GridSize];
             for (int x = 0; x < GridSize; x++)
-                result[x] = GridValues[x,row];
+                result[x] = GridValues[x, row];
 
             return result;
         }
@@ -80,8 +59,29 @@ namespace SudokuSolver
                     result[x1, y1] = GridValues[x * boxSize + x1, y * boxSize + y1];
 
             return result;
-        
+
         }
+        /// <summary>
+        /// The values within the grid. 
+        /// A negative value indicates a value that cant be swapped.
+        /// </summary>
+        internal int[,] GridValues { get; init; }
+
+        /// <summary>
+        /// The Heuristic Value of each Row
+        /// </summary>
+        int[] HVRow { get; init; }
+        /// <summary>
+        /// The Heuristic Value of each Column
+        /// </summary>
+        int[] HVColumn { get; init; }
+        /// <summary>
+        /// The Heuristic Value of the entire grid. 
+        /// This is used to determine how incorrect the grid is.
+        /// 0 being optimal/correct, anything higher being more and more incorrect
+        /// </summary>
+        internal int HeuristicValue { get => HVColumn.Sum() + HVRow.Sum(); }
+
 
         /// <summary>
         /// Converts a 1D int array to a 2D intArray as large as the sudoku grid
