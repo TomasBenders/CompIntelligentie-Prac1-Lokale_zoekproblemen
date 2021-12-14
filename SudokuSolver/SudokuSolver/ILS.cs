@@ -80,13 +80,19 @@ namespace SudokuSolver
             return web;
         }
 
+        /// <summary>
+        /// The primary function that executes the hillclimb algoritm
+        /// </summary> 
+        /// <param name="sudokuGrid"> The orgininal sudokugrid on which the algoritm should be aplied </param>
+        /// <param name="flatTolerance"> A value to describe how long the algoritm can 'walk' across a platform </param>
+        /// <returns> A new sudokugrid with the hillclimb algoritm aplied to it </returns>
         static internal SudokuGrid HillClimb(SudokuGrid sudokuGrid, int flatTolerance)
         {
             SudokuGrid newgrid = sudokuGrid;
             bool uphill = true;
-            int timesConsecutiveWorse = 0;
-            int timesConsecutiveWorseOrEqual = 0;
-            int box = 0;
+            int timesConsecutiveWorse = 0;         //An integer to keep track of how many times there where only worse grid succesors
+            int timesConsecutiveWorseOrEqual = 0;  //An integer to keep track of how many times there was no better grid succesors
+            int box = 0;                           //An integer to keep track of the box that is currently inspected
             while (uphill)
             {
                 WEB web = GetBetterOrEqualSuccessor(newgrid, (box % 3), (box / 3), out SudokuGrid potentialgrid);
@@ -106,10 +112,10 @@ namespace SudokuSolver
                     timesConsecutiveWorse = 0;
                     timesConsecutiveWorseOrEqual = 0;
                 }
-                if (timesConsecutiveWorse >= 9 || timesConsecutiveWorseOrEqual >= flatTolerance)
+                if (timesConsecutiveWorse >= 9 || timesConsecutiveWorseOrEqual >= flatTolerance) //If a flat or top is detected the loop is stoped
                     uphill = false;
 
-                box++;
+                box++;      //The algoritm moves on to the next box
                 box %= 9;
             }
             return newgrid;
