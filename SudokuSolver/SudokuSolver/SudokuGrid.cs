@@ -61,6 +61,16 @@ namespace SudokuSolver
             return result;
 
         }
+        internal int[] GetBox1D(int x, int y)
+        {
+            int[] result = new int[boxSize * boxSize];
+
+            for (int y1 = 0; y1 < boxSize; y1++)
+                for (int x1 = 0; x1 < boxSize; x1++)
+                    result[x1 + y1 * boxSize] = GridValues[x * boxSize + x1, y * boxSize + y1];
+
+            return result;
+        }
         /// <summary>
         /// The values within the grid. 
         /// A negative value indicates a value that cant be swapped.

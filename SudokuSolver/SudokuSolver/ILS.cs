@@ -12,7 +12,7 @@ namespace SudokuSolver
         // Used to select a random box to find successors from
         static readonly Random rnd = new();
 
-        static internal SudokuGrid IterativeLocalSearch(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps)
+        static internal SudokuGrid ILSRandomWalkHillClimbing(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps)
         {
             SudokuGrid best = sudokuGrid;
             SudokuGrid localMax = sudokuGrid;
@@ -148,6 +148,50 @@ namespace SudokuSolver
             SudokuGrid walked = sudokuGrid.Swap(x1, y1, x2, y2);
             walked.PrintSwap(x1, y1, x2, y2);
             return RandomWalk(walked, --s);
+        }
+
+        static internal SudokuGrid TabuSearch(SudokuGrid sudokuGrid, int k)
+        {
+            SudokuGrid current = sudokuGrid;
+            SudokuGrid best = sudokuGrid;
+            Queue<SudokuGrid> tabuList = new();
+
+            while (true)
+            {
+                tabuList.Enqueue(current);
+                if (tabuList.Count > k)
+                    tabuList.Dequeue();
+
+                if(GetBestNotTabued(sudokuGrid,))
+            }
+        }
+
+        static internal bool GetBestNotTabued(SudokuGrid sudokuGrid, int bx, int by, Queue<SudokuGrid> tabu, out SudokuGrid best)
+        {
+            best = sudokuGrid;
+            SortedList<int, SudokuGrid> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
+
+            for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize - 1; i++)
+                for (int j = i + 1; j < sudokuGrid.boxSize * sudokuGrid.boxSize; j++)
+                {
+                    SudokuGrid successor = sudokuGrid.Swap(
+                        i % sudokuGrid.boxSize + bx * sudokuGrid.boxSize,
+                        i / sudokuGrid.boxSize + by * sudokuGrid.boxSize,
+                        j % sudokuGrid.boxSize + bx * sudokuGrid.boxSize,
+                        j / sudokuGrid.boxSize + by * sudokuGrid.boxSize);
+                    bests.Add(successor.HeuristicValue, successor);
+                }
+
+            bool foundOne = false;
+            for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize; i++)
+                if (!tabu.Contains(bests[i]))
+                {
+                    foundOne = true;
+                    best = bests[i];
+                    break;
+                }
+
+            return foundOne;
         }
     }
 }
