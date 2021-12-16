@@ -285,5 +285,6 @@ namespace SudokuSolver
             swapped.CalcAllHeuristicCosts();
             return swapped;
         }
+
     }
 }

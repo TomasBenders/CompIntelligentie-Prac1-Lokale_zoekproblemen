@@ -158,29 +158,45 @@ namespace SudokuSolver
 
             while (true)
             {
+                if (current.HeuristicValue == 0)
+                    return current;
+
                 tabuList.Enqueue(current);
                 if (tabuList.Count > k)
                     tabuList.Dequeue();
 
-                if(GetBestNotTabued(sudokuGrid,))
+                if (!GetBestNotTabued(sudokuGrid, tabuList, out current))
+                    break;
+
+                if (current.HeuristicValue < best.HeuristicValue)
+                    best = current;
             }
+
+            return best;
         }
 
-        static internal bool GetBestNotTabued(SudokuGrid sudokuGrid, int bx, int by, Queue<SudokuGrid> tabu, out SudokuGrid best)
+        static internal bool GetBestNotTabued(SudokuGrid sudokuGrid, Queue<SudokuGrid> tabu, out SudokuGrid best)
         {
             best = sudokuGrid;
-            SortedList<int, SudokuGrid> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
+            List<SudokuGrid> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
 
-            for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize - 1; i++)
-                for (int j = i + 1; j < sudokuGrid.boxSize * sudokuGrid.boxSize; j++)
+            for (int i = 0; i < sudokuGrid.GridSize * sudokuGrid.GridSize - 1; i++)
+                for (int j = i + 1; j < sudokuGrid.GridSize * sudokuGrid.GridSize; j++)
                 {
-                    SudokuGrid successor = sudokuGrid.Swap(
-                        i % sudokuGrid.boxSize + bx * sudokuGrid.boxSize,
-                        i / sudokuGrid.boxSize + by * sudokuGrid.boxSize,
-                        j % sudokuGrid.boxSize + bx * sudokuGrid.boxSize,
-                        j / sudokuGrid.boxSize + by * sudokuGrid.boxSize);
-                    bests.Add(successor.HeuristicValue, successor);
+                    int x1 = i % sudokuGrid.GridSize;
+                    int y1 = i / sudokuGrid.GridSize;
+                    int x2 = j % sudokuGrid.GridSize;
+                    int y2 = j / sudokuGrid.GridSize;
+
+                    if (Math.Sign(sudokuGrid.GridValues[x1, y1]) == -1 ||
+                        Math.Sign(sudokuGrid.GridValues[x2, y2]) == -1)
+                        continue;
+
+                    SudokuGrid successor = sudokuGrid.Swap(x1, y1, x2, y2);
+                    bests.Add(successor);
                 }
+
+            bests.Sort((a, b) => a.HeuristicValue.CompareTo(b.HeuristicValue));
 
             bool foundOne = false;
             for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize; i++)
@@ -188,6 +204,7 @@ namespace SudokuSolver
                 {
                     foundOne = true;
                     best = bests[i];
+                    best.PrintGrid();
                     break;
                 }
 
