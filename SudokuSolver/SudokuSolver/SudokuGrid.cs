@@ -285,6 +285,20 @@ namespace SudokuSolver
             swapped.CalcAllHeuristicCosts();
             return swapped;
         }
+        internal bool AreEqual(SudokuGrid b)
+        {
+            if(HeuristicValue != b.HeuristicValue)
+                return false;
 
+            if(GridSize != b.GridSize)
+                return false;
+
+            for (int x = 0; x < GridSize; x++)
+                for (int y = 0; y < GridSize; y++)
+                    if(GridValues[x,y] != b.GridValues[x,y])
+                        return false;
+
+            return true;
+        }
     }
 }

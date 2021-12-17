@@ -20,6 +20,8 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     //var localMaxima = ILS.HillClimb(sudokuGrids[i])
     //sudokuGrids[i] = ILS.ILSRandomWalkHillClimbing(sudokuGrids[i], 10, 30);
     sudokuGrids[i] = ILS.TabuSearch(sudokuGrids[i], 100);
+    //bool wauw = ILS.GetBestNotTabued(sudokuGrids[i], new(), out SudokuGrid tbuBest);
+    //sudokuGrids[i] = tbuBest;
 
     sudokuGrids[i].posX += 20;
     sudokuGrids[i].PrintScore();

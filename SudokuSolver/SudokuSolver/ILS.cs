@@ -165,8 +165,11 @@ namespace SudokuSolver
                 if (tabuList.Count > k)
                     tabuList.Dequeue();
 
-                if (!GetBestNotTabued(sudokuGrid, tabuList, out current))
+                if (!GetBestNotTabued(current, tabuList, out current))
                     break;
+
+                if (best.AreEqual(current))
+                    return best;
 
                 if (current.HeuristicValue < best.HeuristicValue)
                     best = current;
@@ -178,33 +181,37 @@ namespace SudokuSolver
         static internal bool GetBestNotTabued(SudokuGrid sudokuGrid, Queue<SudokuGrid> tabu, out SudokuGrid best)
         {
             best = sudokuGrid;
-            List<SudokuGrid> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
+            List<(int x1, int y1, int x2, int y2, SudokuGrid grid)> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
 
-            for (int i = 0; i < sudokuGrid.GridSize * sudokuGrid.GridSize - 1; i++)
-                for (int j = i + 1; j < sudokuGrid.GridSize * sudokuGrid.GridSize; j++)
+            for (int boxX = 0; boxX < 3; boxX++)
+                for (int boxY = 0; boxY < 3; boxY++)
                 {
-                    int x1 = i % sudokuGrid.GridSize;
-                    int y1 = i / sudokuGrid.GridSize;
-                    int x2 = j % sudokuGrid.GridSize;
-                    int y2 = j / sudokuGrid.GridSize;
+                    for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize - 1; i++)
+                        for (int j = i + 1; j < sudokuGrid.boxSize * sudokuGrid.boxSize; j++)
+                        {
+                            int x1 = boxX * sudokuGrid.boxSize + i % sudokuGrid.boxSize;
+                            int y1 = boxY * sudokuGrid.boxSize + i / sudokuGrid.boxSize;
+                            int x2 = boxX * sudokuGrid.boxSize + j % sudokuGrid.boxSize;
+                            int y2 = boxY * sudokuGrid.boxSize + j / sudokuGrid.boxSize;
 
-                    if (Math.Sign(sudokuGrid.GridValues[x1, y1]) == -1 ||
-                        Math.Sign(sudokuGrid.GridValues[x2, y2]) == -1)
-                        continue;
+                            if (Math.Sign(sudokuGrid.GridValues[x1, y1]) == -1 ||
+                                Math.Sign(sudokuGrid.GridValues[x2, y2]) == -1)
+                                continue;
 
-                    SudokuGrid successor = sudokuGrid.Swap(x1, y1, x2, y2);
-                    bests.Add(successor);
+                            SudokuGrid successor = sudokuGrid.Swap(x1, y1, x2, y2);
+                            bests.Add((x1, y1, x2, y2, successor));
+                        }
                 }
 
-            bests.Sort((a, b) => a.HeuristicValue.CompareTo(b.HeuristicValue));
+            bests.Sort((a, b) => a.grid.HeuristicValue.CompareTo(b.grid.HeuristicValue));
 
             bool foundOne = false;
             for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize; i++)
-                if (!tabu.Contains(bests[i]))
+                if (!tabu.Any(a => a.AreEqual(bests[i].grid)))
                 {
                     foundOne = true;
-                    best = bests[i];
-                    best.PrintGrid();
+                    best = bests[i].grid;
+                    best.PrintSwap(bests[i].x1, bests[i].y1, bests[i].x2, bests[i].y2);
                     break;
                 }
 
