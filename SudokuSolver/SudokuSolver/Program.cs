@@ -13,16 +13,24 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     sudokuGrids[i].GenFilledInGrid();
     sudokuGrids[i].CalcAllHeuristicCosts();
     sudokuGrids[i].PrintGrid();
+    sudokuGrids[i].posX += 18;
+    sudokuGrids[i].PrintScore();
 
-    sudokuGrids[i].posX += 20;
-    //ILS.GetBetterOrEqualSuccessor(sudokuGrids[i], 1, 1, out _);
-    //ILS.RandomWalk(sudokuGrids[i], 2);
-    //var localMaxima = ILS.HillClimb(sudokuGrids[i])
-    //sudokuGrids[i] = ILS.ILSRandomWalkHillClimbing(sudokuGrids[i], 10, 30);
+    int[,] startingValues = sudokuGrids[i].GridValues;
+
+    sudokuGrids[i].posX += 12;
+    sudokuGrids[i] = ILS.ILSRandomWalkHillClimbing(sudokuGrids[i], 10, 30, 10);
+    sudokuGrids[i].PrintGrid();
+    sudokuGrids[i].posX += 18;
+    sudokuGrids[i].PrintScore();
+
+    for (int x = 0; x < sudokuGrids[i].GridSize; x++)
+        for (int y = 0; y < sudokuGrids[i].GridSize; y++)
+            sudokuGrids[i].GridValues[x,y] = startingValues[x,y];
+
+    sudokuGrids[i].posX += 12;
     sudokuGrids[i] = ILS.TabuSearch(sudokuGrids[i], 100);
-    //bool wauw = ILS.GetBestNotTabued(sudokuGrids[i], new(), out SudokuGrid tbuBest);
-    //sudokuGrids[i] = tbuBest;
-
-    sudokuGrids[i].posX += 20;
+    sudokuGrids[i].PrintGrid();
+    sudokuGrids[i].posX += 18;
     sudokuGrids[i].PrintScore();
 }

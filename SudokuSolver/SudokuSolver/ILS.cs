@@ -12,11 +12,11 @@ namespace SudokuSolver
         // Used to select a random box to find successors from
         static readonly Random rnd = new();
 
-        static internal SudokuGrid ILSRandomWalkHillClimbing(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps)
+        static internal SudokuGrid ILSRandomWalkHillClimbing(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps, int itterations)
         {
             SudokuGrid best = sudokuGrid;
             SudokuGrid localMax = sudokuGrid;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < itterations; i++)
             {
                 localMax = HillClimb(localMax, flatTolerance);
                 if(localMax.HeuristicValue < best.HeuristicValue)
