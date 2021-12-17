@@ -196,16 +196,20 @@ namespace SudokuSolver
                 result.Add(new SudokuGrid(3, lines[i].Trim()));
             return result;
         }
+
+        /// <summary>
+        /// a Method to fill the almost empty grid with all other values
+        /// </summary>
         internal void GenFilledInGrid()
         {
-            for (int x = 0; x < 3; x++)
+            for (int x = 0; x < 3; x++)      //Every box is filled individualy
                 for (int y = 0; y < 3; y++)
                 {
                     List<int> notInBox = new List<int>();
-                    for (int i = 1; i < (boxSize * boxSize + 1); i++)
+                    for (int i = 1; i < (boxSize * boxSize + 1); i++) //Instatiate a list of values to add 
                         notInBox.Add(i);
                     for (int bx = 0; bx < boxSize; bx++)
-                        for (int by = 0; by < boxSize; by++)
+                        for (int by = 0; by < boxSize; by++)          //For every value already in the grid that value is removed from the 'to add' list
                         {
                             if (GridValues[bx + x * 3, by + y * 3] != 0)
                             {
@@ -213,7 +217,7 @@ namespace SudokuSolver
                             }
                         }
                     for (int bx = 0; bx < boxSize; bx++)
-                        for (int by = 0; by < boxSize; by++)
+                        for (int by = 0; by < boxSize; by++)          //Every empty cell in the box is assigned one of the values in the 'to add' list
                         {
                             if (GridValues[bx + x * 3, by + y * 3] == 0)
                             {
@@ -264,24 +268,33 @@ namespace SudokuSolver
             if(allHVColumnAreZero&&allHVRowAreZero) return true;
             else return false;
         }
+
+        /// <summary>
+        /// A function that swaps the indicated values
+        /// </summary>
+        /// <param name="x1"> The x coördinate for the first value to be swaped </param>
+        /// <param name="y1"> The y coördinate for the first value to be swaped </param>
+        /// <param name="x2"> The x coördinate for the second value to be swaped </param>
+        /// <param name="y2"> The y coördinate for the second value to be swaped </param>
+        /// <returns> A new sudokugrid with the indicated values swaped </returns>
         internal SudokuGrid Swap(int x1, int y1, int x2, int y2)
         {
-            if (Math.Sign(GridValues[x1, y1]) == -1 || Math.Sign(GridValues[x2, y2]) == -1)
+            if (Math.Sign(GridValues[x1, y1]) == -1 || Math.Sign(GridValues[x2, y2]) == -1) //Fixed values should not be swaped
                 throw new ArgumentException("bro das een gefixeerde");
 
-            int[] values = new int[GridSize * GridSize];
+            int[] values = new int[GridSize * GridSize];  //A new array of values (needed for the construction of a sudokugrid) is made
             for (int x = 0; x < GridSize; x++)
-                for (int y = 0; y < GridSize; y++)
+                for (int y = 0; y < GridSize; y++)        //All values of the old grid are copied into the new array
                 {
                     if(x == x1 && y == y1)
                         values[x + y * GridSize] = GridValues[x2, y2];
-                    else if (x == x2 && y == y2)
+                    else if (x == x2 && y == y2)                        //If a swaped value is detected , the other value is written instead
                         values[x + y * GridSize] = GridValues[x1, y1];
                     else
                         values[x + y * GridSize] = GridValues[x, y];
                 }
 
-            SudokuGrid swapped = new SudokuGrid(boxSize, values) { posX=posX, posY=posY};
+            SudokuGrid swapped = new SudokuGrid(boxSize, values) { posX=posX, posY=posY}; //a new sudokugrid is made
             swapped.CalcAllHeuristicCosts();
             return swapped;
         }
