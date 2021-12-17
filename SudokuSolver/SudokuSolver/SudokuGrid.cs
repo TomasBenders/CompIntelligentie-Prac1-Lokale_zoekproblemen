@@ -261,6 +261,9 @@ namespace SudokuSolver
                 CalcHeuristicColumn(i);
             }
         }
+        /// <summary>
+        /// A function that checks if the whole sudoku is correct, by checking if the heuristic value is 0.
+        /// </summary>
         internal bool IsCorrect()
         {
             var allHVRowAreZero = HVRow.All(o => o == 0);

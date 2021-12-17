@@ -120,21 +120,26 @@ namespace SudokuSolver
             }
             return newgrid;
         }
-
+        /// <summary>
+        /// The function that swaps random values s times
+        /// </summary> 
+        /// /// <param name="sudokuGrid"> The orgininal sudokugrid on which the algoritm should be aplied </param>
+        /// <param name="s"> the amount of times the function will randomly swap </param>
+        /// <returns> A new sudokugrid with the randomWalk algoritm aplied to it </returns>
         static internal SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
         {
-            if (s < 0)
+            if (s < 0) //if no more randomwalk just return the given sudokugrid
                 return sudokuGrid;
 
-            int whichsquarex = rnd.Next(0, sudokuGrid.boxSize);
+            int whichsquarex = rnd.Next(0, sudokuGrid.boxSize);// get a random square
             int whichsquarey = rnd.Next(0, sudokuGrid.boxSize);
 
             int x1;
             int y1;
-            do 
+            do //gets a random number in the square to swap, based on which square was chosen and the boxsize
             {
                 x1 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
-                    whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
+                    whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize); 
                 y1 = rnd.Next(whichsquarey * sudokuGrid.boxSize,
                     whichsquarey * sudokuGrid.boxSize + sudokuGrid.boxSize);
             }
@@ -142,7 +147,7 @@ namespace SudokuSolver
             
             int x2;
             int y2;
-            do
+            do //same thing but check if the number isnt the same so to no swap the same number
             {
                 x2 = rnd.Next(whichsquarex * sudokuGrid.boxSize,
                     whichsquarex * sudokuGrid.boxSize + sudokuGrid.boxSize);
