@@ -11,7 +11,15 @@ namespace SudokuSolver
     {
         // Used to select a random box to find successors from
         static readonly Random rnd = new();
-
+        
+        /// <summary>
+        /// The function to combine hill climbing and random walk (almost) as described in the assignment
+        /// </summary>
+        /// <param name="sudokuGrid">The sudoku to solve</param>
+        /// <param name="flatTolerance">The parameter to pass on to hillClimb</param>
+        /// <param name="randomSteps">The parameter to pass on to RandomWalk</param>
+        /// <param name="itterations">The amount of times to perform hillClimb and RandomWalk</param>
+        /// <returns>A hopefully solved Sudoku</returns>
         static internal SudokuGrid ILSRandomWalkHillClimbing(SudokuGrid sudokuGrid, int flatTolerance, int randomSteps, int itterations)
         {
             SudokuGrid best = sudokuGrid;
@@ -20,8 +28,8 @@ namespace SudokuSolver
             {
                 localMax = HillClimb(localMax, flatTolerance);
                 if(localMax.HeuristicValue < best.HeuristicValue)
-                    best = localMax;
-                if (localMax.HeuristicValue == 0) break;
+                    best = localMax; // Remember best grid
+                if (localMax.HeuristicValue == 0) break; // If solved return
                 localMax = RandomWalk(localMax, randomSteps);
             }
             return best;
@@ -37,16 +45,18 @@ namespace SudokuSolver
         static internal WEB GetBetterOrEqualSuccessor(SudokuGrid sudokuGrid, int boxX, int boxY, out SudokuGrid successor)
         {
             WEB web = WEB.worse;
+            //remember best successor and its swap
             (int x1, int y1, int x2, int y2, SudokuGrid grid) bestSuccessor = (-1, -1, -1, -1, sudokuGrid);
 
             int[,] box = sudokuGrid.GetBox(boxX, boxY);
             boxX *= sudokuGrid.boxSize;
             boxY *= sudokuGrid.boxSize;
 
+            //Loop over all possible swaps
             for (int x1 = 0; x1 < sudokuGrid.boxSize; x1++)
                 for (int y1 = 0; y1 < sudokuGrid.boxSize; y1++)
                 {
-                    if (Math.Sign(box[x1, y1]) == -1)
+                    if (Math.Sign(box[x1, y1]) == -1) // If fixated, dont swap
                         continue;
 
                     for (int x2 = 0; x2 < sudokuGrid.boxSize; x2++)
@@ -54,7 +64,7 @@ namespace SudokuSolver
                         {
                             if (Math.Sign(box[x2, y2]) == -1 ||
                                 (x1 == x2 && y1 == y2))
-                                continue;
+                                continue;// If fixated or the same as the first coordinate, dont swap
 
                             successor = sudokuGrid.Swap(boxX + x1, boxY + y1, boxX + x2, boxY + y2);
                             if (successor.HeuristicValue < bestSuccessor.grid.HeuristicValue)
@@ -79,7 +89,6 @@ namespace SudokuSolver
                     boxY + bestSuccessor.y2);
             return web;
         }
-
         /// <summary>
         /// The primary function that executes the hillclimb algoritm
         /// </summary> 
@@ -123,7 +132,7 @@ namespace SudokuSolver
         /// <summary>
         /// The function that swaps random values s times
         /// </summary> 
-        /// /// <param name="sudokuGrid"> The orgininal sudokugrid on which the algoritm should be aplied </param>
+        /// <param name="sudokuGrid"> The orgininal sudokugrid on which the algoritm should be aplied </param>
         /// <param name="s"> the amount of times the function will randomly swap </param>
         /// <returns> A new sudokugrid with the randomWalk algoritm aplied to it </returns>
         static internal SudokuGrid RandomWalk(SudokuGrid sudokuGrid, int s)
@@ -160,40 +169,64 @@ namespace SudokuSolver
             walked.PrintSwap(x1, y1, x2, y2);
             return RandomWalk(walked, --s);
         }
-
-        static internal SudokuGrid TabuSearch(SudokuGrid sudokuGrid, int k)
+        /// <summary>
+        /// The function to apply TabuSearch to a SudokuGrid
+        /// </summary>
+        /// <param name="sudokuGrid">The sudoku to solve</param>
+        /// <param name="k">The length of the tabuList</param>
+        /// <param name="iterationsWithoutImprovement">The maximum number of steps without improvement</param>
+        /// <returns>A potentially solved sudoku</returns>
+        static internal SudokuGrid TabuSearch(SudokuGrid sudokuGrid, int k, int iterationsWithoutImprovement)
         {
             SudokuGrid current = sudokuGrid;
             SudokuGrid best = sudokuGrid;
-            Queue<SudokuGrid> tabuList = new();
+            Queue<SudokuGrid> tabuList = new(); // The banned states
+            int i = 0;
 
             while (true)
             {
                 if (current.HeuristicValue == 0)
-                    return current;
+                    return current; // if solved, return
 
                 tabuList.Enqueue(current);
                 if (tabuList.Count > k)
-                    tabuList.Dequeue();
+                    tabuList.Dequeue(); // keep the amount of banned states equal to k
 
-                if (!GetBestNotTabued(current, tabuList, out current))
-                    break;
+                if (!GetBestNotTabued(current, tabuList, out current)) // find successor
+                    break; // if not successor that isnt banned, return
 
-                if (best.AreEqual(current))
+                if (best.AreEqual(current)) // if current == banned, we have a sycle and should return
                     return best;
 
-                if (current.HeuristicValue < best.HeuristicValue)
+                if (current.HeuristicValue < best.HeuristicValue) // remember best state
+                {
                     best = current;
+                    i = 0;
+                }
+                else
+                {
+                    i++;
+                    if (i > iterationsWithoutImprovement)
+                        return best; // if no improvement for iterationsWithoutImprovement times, return
+                }
             }
 
             return best;
         }
-
+        /// <summary>
+        /// The function to get the successor for tabuSearch
+        /// </summary>
+        /// <param name="sudokuGrid">The sudoku in which to find a successor</param>
+        /// <param name="tabu">The list of taboed sudokus</param>
+        /// <param name="best">The successor if one was found</param>
+        /// <returns>A bool for whether or not a successor was found that isnt taboed</returns>
         static internal bool GetBestNotTabued(SudokuGrid sudokuGrid, Queue<SudokuGrid> tabu, out SudokuGrid best)
         {
             best = sudokuGrid;
+            // List to remember potential successors and their swaps
             List<(int x1, int y1, int x2, int y2, SudokuGrid grid)> bests = new(sudokuGrid.boxSize * sudokuGrid.boxSize);
 
+            // loop over every potential swap in the entire grid
             for (int boxX = 0; boxX < 3; boxX++)
                 for (int boxY = 0; boxY < 3; boxY++)
                 {
@@ -207,7 +240,7 @@ namespace SudokuSolver
 
                             if (Math.Sign(sudokuGrid.GridValues[x1, y1]) == -1 ||
                                 Math.Sign(sudokuGrid.GridValues[x2, y2]) == -1)
-                                continue;
+                                continue; // if fixated, dont swap
 
                             SudokuGrid successor = sudokuGrid.Swap(x1, y1, x2, y2);
                             bests.Add((x1, y1, x2, y2, successor));
@@ -218,7 +251,7 @@ namespace SudokuSolver
 
             bool foundOne = false;
             for (int i = 0; i < sudokuGrid.boxSize * sudokuGrid.boxSize; i++)
-                if (!tabu.Any(a => a.AreEqual(bests[i].grid)))
+                if (!tabu.Any(a => a.AreEqual(bests[i].grid))) // if state is not taboed
                 {
                     foundOne = true;
                     best = bests[i].grid;

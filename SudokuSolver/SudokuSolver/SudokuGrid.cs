@@ -50,6 +50,10 @@ namespace SudokuSolver
 
             return result;
         }
+        /// <summary>
+        /// Gets a single subGrid of the sudoku
+        /// </summary>
+        /// <returns>A two-dimensional array containing the values within a box</returns>
         internal int[,] GetBox(int x, int y)
         {
             int[,] result = new int[boxSize, boxSize];
@@ -61,6 +65,10 @@ namespace SudokuSolver
             return result;
 
         }
+        /// <summary>
+        /// Gets a single subGrid of the sudoku
+        /// </summary>
+        /// <returns>A one-dimensional array containing the values within a box</returns>
         internal int[] GetBox1D(int x, int y)
         {
             int[] result = new int[boxSize * boxSize];
@@ -261,16 +269,6 @@ namespace SudokuSolver
                 CalcHeuristicColumn(i);
             }
         }
-        /// <summary>
-        /// A function that checks if the whole sudoku is correct, by checking if the heuristic value is 0.
-        /// </summary>
-        internal bool IsCorrect()
-        {
-            var allHVRowAreZero = HVRow.All(o => o == 0);
-            var allHVColumnAreZero = HVColumn.All(o => o == 0);
-            if(allHVColumnAreZero&&allHVRowAreZero) return true;
-            else return false;
-        }
 
         /// <summary>
         /// A function that swaps the indicated values
@@ -301,6 +299,11 @@ namespace SudokuSolver
             swapped.CalcAllHeuristicCosts();
             return swapped;
         }
+        /// <summary>
+        /// A function to check whether this SudokuGrid equals another
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
         internal bool AreEqual(SudokuGrid b)
         {
             if(HeuristicValue != b.HeuristicValue)
