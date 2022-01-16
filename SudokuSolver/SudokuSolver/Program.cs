@@ -24,7 +24,7 @@ for (int i = 0; i < sudokuGrids.Count; i++)
 
     // Print de ILSRandomWalkHillClimbing opgeloste puzzel met score
     sudokuGrids[i].posX += 12;
-    sudokuGrids[i] = ILS.ILSRandomWalkHillClimbing(sudokuGrids[i], 10, 30, 10);
+    sudokuGrids[i] = ILS.ILSRandomWalkHillClimbing(sudokuGrids[i], 10, 3, 10);
     sudokuGrids[i].PrintGrid();
     sudokuGrids[i].posX += 18;
     sudokuGrids[i].PrintScore();
