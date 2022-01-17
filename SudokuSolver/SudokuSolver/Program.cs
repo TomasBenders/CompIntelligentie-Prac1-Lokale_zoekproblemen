@@ -4,13 +4,15 @@ using SudokuSolver.Properties;
 using System.Collections;
 
 //zet de 5 gegeven puzzels om in sudokuGrids
-List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5); 
+List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
 for (int i = 0; i < sudokuGrids.Count; i++)
 {
     // Print de input puzzel
     sudokuGrids[i].posY = i * 10;
     sudokuGrids[i].PrintGrid();
 
+    #region Assignment 1
+#if false
     // Print de ingevulde puzzel met score
     sudokuGrids[i].posX += 20;
     sudokuGrids[i].GenFilledInGrid();
@@ -40,6 +42,17 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     sudokuGrids[i].PrintGrid();
     sudokuGrids[i].posX += 18;
     sudokuGrids[i].PrintScore();
+#endif
+    #endregion
+
+    #region Assignment 2
+#if true
+    // Print resultaat van CBT
+    sudokuGrids[i].posX += 20;
+    sudokuGrids[i] = CBT.CBTSolver(sudokuGrids[i], 0, 0);
+    sudokuGrids[i].PrintGrid();
+#endif
+    #endregion
 }
 
 Console.SetCursorPosition(0, sudokuGrids.Count * 10);
