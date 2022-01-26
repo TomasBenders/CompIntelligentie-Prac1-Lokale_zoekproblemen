@@ -27,7 +27,6 @@ namespace SudokuSolver
 
             //TO DO: CBT Algorithm
 
-
             // Convert variables to value array
             int[] values = new int[sudokuGrid.GridSize * sudokuGrid.GridSize];
             for (int x2 = 0; x2 < sudokuGrid.GridSize; x2++)
@@ -54,7 +53,7 @@ namespace SudokuSolver
             for (int i = 0; i < variables.GetLength(0); i++)
             {
                 if (variables[i, y].Count == 1)
-                    occurences.Add(variables[i, y][0]);
+                    occurences.Add(Math.Abs(variables[i, y][0]));
             }
             return occurences;
         }
@@ -64,24 +63,21 @@ namespace SudokuSolver
             for (int i = 0; i < variables.GetLength(1); i++)
             {
                 if (variables[x, i].Count == 1)
-                    occurences.Add(variables[x, i][0]);
+                    occurences.Add(Math.Abs(variables[x, i][0]));
             }
             return occurences;
         }
         static internal List<int> GetBoxOccurrences(List<int>[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
-            int offsetx = x / 3;
-            int offsety = y / 3;
-            x = x % 3;
-            y = y % 3;
+            int offsetx = (x / 3) * 3;
+            int offsety = (y / 3) * 3;
             for (int x2 = 0; x2 < 3; x2++)
             {
                 for (int y2 = 0; y2 < 3; y2++)
                 {
-                    if (variables[x2 + offsetx, y2 + offsety].Count == 1 &&
-                        (x != x2 || y != y2))
-                        occurences.Add(variables[x2 + offsetx, y2 + offsety][0]);
+                    if (variables[x2 + offsetx , y2 + offsety ].Count == 1)
+                        occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety][0]));
                 }
             }
             return occurences;
