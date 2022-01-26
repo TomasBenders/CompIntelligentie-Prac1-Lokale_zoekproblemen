@@ -45,7 +45,27 @@ namespace SudokuSolver
 
         static internal void NodeConsistent(ref List<int>[,] variables) //Erben
         {
-            throw new NotImplementedException();
+            for(int x = 0; x<9;x++)
+            {
+                for (int y = 0; y < 9; y++)
+                {
+                    List<int> domein = variables[x,y];
+
+                    if (domein.Count == 1) break;
+                    List<int> actualdomain = CalcDomain(variables, x, y);
+                    variables[x, y] = (List<int>)domein.Except(actualdomain);
+                }
+            }
+
+            //procedure node-consistency(CSP) returns CSP:
+            //for each Vi ∈ V do
+            //        Di ← Di ∩ { d | (d, d) ∈ Ci,i}
+            //od;
+            //for each Ci, j ∈ C do
+            //        Ci,j ← Ci,j ∩ (Di × Dj)
+            //od
+            //end
+           // throw new NotImplementedException();
         }
 
         static internal List<int> GetRowOccurrences(List<int>[,] variables, int x, int y) //Tjerk
