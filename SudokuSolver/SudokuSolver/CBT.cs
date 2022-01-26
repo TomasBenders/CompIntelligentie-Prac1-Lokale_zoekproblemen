@@ -50,19 +50,57 @@ namespace SudokuSolver
 
         static internal List<int> GetRowOccurrences(List<int>[,] variables, int x, int y) //Tjerk
         {
-            throw new NotImplementedException();
+            List<int> occurences = new List<int>();
+            for (int i = 0; i < variables.GetLength(0); i++)
+            {
+                if (variables[i, y].Count == 1)
+                    occurences.Add(variables[i, y][0]);
+            }
+            return occurences;
         }
         static internal List<int> GetColumnOccurrences(List<int>[,] variables, int x, int y) //Tjerk
         {
-            throw new NotImplementedException();
+            List<int> occurences = new List<int>();
+            for (int i = 0; i < variables.GetLength(1); i++)
+            {
+                if (variables[x, i].Count == 1)
+                    occurences.Add(variables[x, i][0]);
+            }
+            return occurences;
         }
         static internal List<int> GetBoxOccurrences(List<int>[,] variables, int x, int y) //Tjerk
         {
-            throw new NotImplementedException();
+            List<int> occurences = new List<int>();
+            int offsetx = x / 3;
+            int offsety = y / 3;
+            x = x % 3;
+            y = y % 3;
+            for (int x2 = 0; x2 < 3; x2++)
+            {
+                for (int y2 = 0; y2 < 3; y2++)
+                {
+                    if (variables[x2 + offsetx, y2 + offsety].Count == 1 &&
+                        (x != x2 || y != y2))
+                        occurences.Add(variables[x2 + offsetx, y2 + offsety][0]);
+                }
+            }
+            return occurences;
         }
         static internal List<int> CalcDomain(List<int>[,] variables, int x, int y) //Tjerk
         {
-            throw new NotImplementedException();
+            HashSet<int> occurences = new HashSet<int>();
+            List<int> oRow = GetRowOccurrences(variables, x, y);
+            List<int> oCol = GetColumnOccurrences(variables, x, y);
+            List<int> oDom = GetBoxOccurrences(variables, x, y);
+
+            for (int i = 0; i < oRow.Count; i++)
+                occurences.Add(oRow[i]);
+            for (int i = 0; i < oCol.Count; i++)
+                occurences.Add(oCol[i]);
+            for (int i = 0; i < oDom.Count; i++)
+                occurences.Add(oDom[i]);
+
+            return occurences.ToList();
         }
 
         static internal void PrintVariables(List<int>[,] variables, int newX = -1, int newY = -1, bool absAll = true) //Tomas
