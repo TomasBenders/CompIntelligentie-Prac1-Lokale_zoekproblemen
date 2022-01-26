@@ -3,6 +3,9 @@ using SudokuSolver;
 using SudokuSolver.Properties;
 using System.Collections;
 
+Utils.shouldPrintIntermediaries = true; // print swaps and steps before completion
+Utils.shouldMeasureStats = false;       // print stats for experiment measuring
+
 //zet de 5 gegeven puzzels om in sudokuGrids
 List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
 for (int i = 0; i < sudokuGrids.Count; i++)

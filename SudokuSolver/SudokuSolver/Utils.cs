@@ -13,6 +13,10 @@ namespace SudokuSolver
     /// </summary>
     static internal class Utils
     {
+        // config
+        static internal bool shouldPrintIntermediaries;  // print swaps and steps before completion
+        static internal bool shouldMeasureStats;         // print stats for experiment measuring
+
         const int STD_OUTPUT_HANDLE = -11;
         const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
 

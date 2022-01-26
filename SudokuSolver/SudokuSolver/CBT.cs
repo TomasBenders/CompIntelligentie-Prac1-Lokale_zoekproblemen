@@ -180,6 +180,9 @@ namespace SudokuSolver
 
         static internal void PrintVariables(Cell[,] variables, int newX = -1, int newY = -1, bool absAll = true) //Tomas
         {
+            if (!Utils.shouldPrintIntermediaries)
+                return;
+
             for (int x = 0; x < variables.GetLength(0); x++)
                 for (int y = 0; y < variables.GetLength(1); y++)
                 {
