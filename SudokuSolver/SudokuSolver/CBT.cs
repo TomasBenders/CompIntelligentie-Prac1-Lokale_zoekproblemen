@@ -60,22 +60,18 @@ namespace SudokuSolver
         static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y) //Erben
         {
             List<int> actualdomain = CalcDomain(variables, x, y);
-            List<int> domein = variables[x, y];
+            List<int> domein = variables[x, y].domain;
             if (domein.Sum() < 0) return false;
-            List<int> row = (List<int>)GetRowOccurrences(variables, x, y).Skip(x);
-            List<int> column = (List<int>)GetColumnOccurrences(variables, x, y).Skip(y);
-            List<int> box = (List<int>)GetBoxOccurrences(variables, x, y);
-            int number = variables[x, y].First();
-
+            int number = variables[x, y].value;
 
             for (int right = x; right < 9; right++)
             {
                 //rechts domain updaten
-                if (variables[right, y].Remove(number)) ;
+                variables[right, y].domain.Remove(number);
             }
             for (int left = y; left < 9; left++)
             {
-                if (variables[x, left].Remove(number)) ;
+                variables[x, left].domain.Remove(number);
                 //links domain updaten
 
 
@@ -94,7 +90,7 @@ namespace SudokuSolver
             {
                 for (int y3 = y1; y <= y2; y++)
                 {
-                    variables[x3, y3].Remove(number);
+                    variables[x3, y3].domain.Remove(number);
                 }
             }
             return true;
@@ -107,11 +103,11 @@ namespace SudokuSolver
             {
                 for (int y = 0; y < 9; y++)
                 {
-                    List<int> domein = variables[x,y];
+                    List<int> domein = variables[x,y].domain;
 
                     if (domein.Count == 1) break;
                     List<int> actualdomain = CalcDomain(variables, x, y);
-                    variables[x, y] = (List<int>)domein.Except(actualdomain);
+                    variables[x, y].domain = (List<int>)domein.Except(actualdomain);
                 }
             }
 
