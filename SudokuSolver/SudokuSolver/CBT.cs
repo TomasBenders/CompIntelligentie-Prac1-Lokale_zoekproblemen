@@ -39,9 +39,48 @@ namespace SudokuSolver
 
         static internal bool DynamicForwardChecking(ref List<int>[,] variables, int x, int y) //Erben
         {
-            throw new NotImplementedException();
-        }
+            List<int> actualdomain = CalcDomain(variables, x, y);
+            List<int> domein = variables[x, y];
+            if (domein.Sum() < 0) return false;
+            List<int> row = (List<int>)GetRowOccurrences(variables, x, y).Skip(x);
+            List<int> column = (List<int>)GetColumnOccurrences(variables, x, y).Skip(y);
+            List<int> box = (List<int>)GetBoxOccurrences(variables, x, y);
+            int number = variables[x, y].First();
 
+
+            for (int right = x; right < 9; right++)
+            {
+                //rechts domain updaten
+                if (variables[right, y].Remove(number)) ;
+            }
+            for (int left = y; left < 9; left++)
+            {
+                if (variables[x, left].Remove(number)) ;
+                //links domain updaten
+
+
+                //get first number in domain
+                //check if row,colum and box domains still have that number
+                //if not impossible
+                //if they do delete number and update domain
+
+
+            }
+            int x1 = 3 * (x / 3);
+            int y1 = 3 * (y / 3);
+            int x2 = x1 + 2;
+            int y2 = y1 + 2;
+            for (int x3 = x1; x <= x2; x++)
+            {
+                for (int y3 = y1; y <= y2; y++)
+                {
+                    variables[x3, y3].Remove(number);
+                }
+            }
+            return true;
+            //throw new NotImplementedException();
+
+        }
         static internal void NodeConsistent(ref List<int>[,] variables) //Erben
         {
             for(int x = 0; x<9;x++)
