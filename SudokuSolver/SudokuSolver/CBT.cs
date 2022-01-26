@@ -12,8 +12,13 @@ namespace SudokuSolver
         static int posY;
 
         internal class Cell {
-            internal int value = 0;
+            internal int value ;
             internal List<int> domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+            internal Cell (int value= 0)
+            {
+                this.value = value;
+            }
         }
 
         static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, int x, int y) //Tomas
@@ -26,7 +31,7 @@ namespace SudokuSolver
             Cell[,] variables = new Cell[sudokuGrid.GridSize, sudokuGrid.GridSize];
             for (int x2 = 0; x2 < sudokuGrid.GridSize; x2++)
                 for (int y2 = 0; y2 < sudokuGrid.GridSize; y2++)
-                    variables[x2, y2].value = -sudokuGrid.GridValues[x, y];
+                    variables[x2, y2] = new (-sudokuGrid.GridValues[x, y]);
 
             //Apply CBT Algorithm
             ChronologicalBackTracking(ref variables);
