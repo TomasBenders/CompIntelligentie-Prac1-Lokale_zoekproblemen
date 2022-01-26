@@ -43,8 +43,8 @@ namespace SudokuSolver
 
         static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x = 0, int y = 0)
         {
-            if(Math.Sign(variables[x,y].value) == -1) // fixated cell
-                return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1)))
+            if (Math.Sign(variables[x, y].value) == -1) // fixated cell
+                return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1));
 
             for (int i = 0; i < variables[x,y].domain.Count; i++)
             {
