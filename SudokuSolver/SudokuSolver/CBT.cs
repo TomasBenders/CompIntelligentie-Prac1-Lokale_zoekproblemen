@@ -41,20 +41,23 @@ namespace SudokuSolver
             return new SudokuGrid(sudokuGrid.boxSize, values) { posX = posX, posY = posY };
         }
 
-        static internal void ChronologicalBackTracking(ref Cell[,] variables, int x = 0, int y = 0)
+        static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x = 0, int y = 0)
         {
+            if (Math.Sign(variables[x, y].value) == -1) // fixated cell
+                return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1));
+
             for (int i = 0; i < variables[x,y].domain.Count; i++)
             {
-                //if(DynamicForwardChecking(ref variables, x, y) && )
-                //{
+                if (!DynamicForwardChecking(ref variables, x, y) ||
+                    !ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1)))
+                {
+                    //TO DO: revert changes
 
-                //    //smth
-                //}
-                //else
-                //{
-                //    //revert changes
-                //}
+                }
+                else
+                    return true;
             }
+            return false;
         }
 
         static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y) //Erben
