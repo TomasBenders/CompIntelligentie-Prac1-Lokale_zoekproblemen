@@ -11,6 +11,11 @@ namespace SudokuSolver
         static int posX;
         static int posY;
 
+        internal class Cell {
+            internal int value = 0;
+            internal List<int> domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        }
+
         static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, int x, int y) //Tomas
         {
             // Set position for printing
@@ -18,26 +23,41 @@ namespace SudokuSolver
             posY = sudokuGrid.posY;
 
             // Convert sudokuGrid to variables
-            List<int>[,] variables = new List<int>[sudokuGrid.GridSize, sudokuGrid.GridSize];
+            Cell[,] variables = new Cell[sudokuGrid.GridSize, sudokuGrid.GridSize];
             for (int x2 = 0; x2 < sudokuGrid.GridSize; x2++)
                 for (int y2 = 0; y2 < sudokuGrid.GridSize; y2++)
-                    variables[x2, y2] = sudokuGrid.GridValues[x2, y2] == 0 ?
-                        new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 } :
-                        new List<int> { -sudokuGrid.GridValues[x2, y2] };
+                    variables[x2, y2].value = -sudokuGrid.GridValues[x, y];
 
-            //TO DO: CBT Algorithm
+            //Apply CBT Algorithm
+            ChronologicalBackTracking(ref variables);
 
             // Convert variables to value array
             int[] values = new int[sudokuGrid.GridSize * sudokuGrid.GridSize];
             for (int x2 = 0; x2 < sudokuGrid.GridSize; x2++)
                 for (int y2 = 0; y2 < sudokuGrid.GridSize; y2++)
-                    values[x2 + y2 * sudokuGrid.GridSize] = variables[x2, y2].Count == 1 ? variables[x2, y2][0] : 0;
+                    values[x2 + y2 * sudokuGrid.GridSize] = variables[x2, y2].value;
 
             // Return new sudoGrid with value array
             return new SudokuGrid(sudokuGrid.boxSize, values) { posX = posX, posY = posY };
         }
 
-        static internal bool DynamicForwardChecking(ref List<int>[,] variables, int x, int y) //Erben
+        static internal void ChronologicalBackTracking(ref Cell[,] variables, int x = 0, int y = 0)
+        {
+            for (int i = 0; i < variables[x,y].domain.Count; i++)
+            {
+                //if(DynamicForwardChecking(ref variables, x, y) && )
+                //{
+
+                //    //smth
+                //}
+                //else
+                //{
+                //    //revert changes
+                //}
+            }
+        }
+
+        static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y) //Erben
         {
             List<int> actualdomain = CalcDomain(variables, x, y);
             List<int> domein = variables[x, y];
@@ -79,9 +99,9 @@ namespace SudokuSolver
             }
             return true;
             //throw new NotImplementedException();
-
         }
-        static internal void NodeConsistent(ref List<int>[,] variables) //Erben
+
+        static internal void NodeConsistent(ref Cell[,] variables) //Erben
         {
             for(int x = 0; x<9;x++)
             {
@@ -106,27 +126,23 @@ namespace SudokuSolver
            // throw new NotImplementedException();
         }
 
-        static internal List<int> GetRowOccurrences(List<int>[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetRowOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
             for (int i = 0; i < variables.GetLength(0); i++)
-            {
-                if (variables[i, y].Count == 1)
-                    occurences.Add(Math.Abs(variables[i, y][0]));
-            }
+                if(variables[i, y].value != 0)
+                    occurences.Add(Math.Abs(variables[i, y].value));
             return occurences;
         }
-        static internal List<int> GetColumnOccurrences(List<int>[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetColumnOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
             for (int i = 0; i < variables.GetLength(1); i++)
-            {
-                if (variables[x, i].Count == 1)
-                    occurences.Add(Math.Abs(variables[x, i][0]));
-            }
+                if (variables[x, i].value != 0)
+                    occurences.Add(Math.Abs(variables[x, i].value));
             return occurences;
         }
-        static internal List<int> GetBoxOccurrences(List<int>[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetBoxOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
             int offsetx = (x / 3) * 3;
@@ -135,13 +151,13 @@ namespace SudokuSolver
             {
                 for (int y2 = 0; y2 < 3; y2++)
                 {
-                    if (variables[x2 + offsetx , y2 + offsety ].Count == 1)
-                        occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety][0]));
+                    if (variables[x2 + offsetx , y2 + offsety ].value != 0)
+                        occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety].value));
                 }
             }
             return occurences;
         }
-        static internal List<int> CalcDomain(List<int>[,] variables, int x, int y) //Tjerk
+        static internal List<int> CalcDomain(Cell[,] variables, int x, int y) //Tjerk
         {
             HashSet<int> occurences = new HashSet<int>();
             List<int> oRow = GetRowOccurrences(variables, x, y);
@@ -158,7 +174,7 @@ namespace SudokuSolver
             return occurences.ToList();
         }
 
-        static internal void PrintVariables(List<int>[,] variables, int newX = -1, int newY = -1, bool absAll = true) //Tomas
+        static internal void PrintVariables(Cell[,] variables, int newX = -1, int newY = -1, bool absAll = true) //Tomas
         {
             for (int x = 0; x < variables.GetLength(0); x++)
                 for (int y = 0; y < variables.GetLength(1); y++)
@@ -166,9 +182,7 @@ namespace SudokuSolver
                     Console.SetCursorPosition(posX + x * 2, posY + y);
                     bool shouldUnderLine = y % 3 == 2 && y != 8;
                     bool isNewCoord = x == newX && y == newY;
-                    int value = 0;
-                    if (variables[x, y].Count == 1)
-                        value = absAll ? Math.Abs(variables[x, y][0]) : variables[x, y][0];
+                    int value = absAll ? Math.Abs(variables[x, y].value) : variables[x, y].value;
                     Utils.WriteUnderline(value.ToString(), shouldUnderLine, isNewCoord ? ConsoleColor.Red : null);
                     Utils.WriteUnderline(x < variables.GetLength(1) - 1 ? (x % 3 == 2 ? "|" : " ") : "", shouldUnderLine, null);
                 }
