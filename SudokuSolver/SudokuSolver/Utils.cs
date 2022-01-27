@@ -14,8 +14,9 @@ namespace SudokuSolver
     static internal class Utils
     {
         // config
-        static internal bool shouldPrintIntermediaries;  // print swaps and steps before completion
-        static internal bool shouldMeasureStats;         // print stats for experiment measuring
+        static internal bool shouldPrintIntermediaries;         // print swaps and steps before completion
+        static internal bool shouldMeasureStats;                // print stats for experiment measuring
+        static internal bool shouldWaitAfterIntermediateStep;   // wait after an intermediate step
 
         const int STD_OUTPUT_HANDLE = -11;
         const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
@@ -54,5 +55,50 @@ namespace SudokuSolver
 
             Console.ForegroundColor = fg;
         }
+
+        #region https://stackoverflow.com/a/52339246
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool ReadConsoleOutputCharacter(
+            IntPtr hConsoleOutput,
+            [Out] StringBuilder lpCharacter,
+            uint length,
+            COORD bufferCoord,
+            out uint lpNumberOfCharactersRead);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct COORD
+        {
+            public short X;
+            public short Y;
+        }
+
+        public static char ReadCharacterAt(int x, int y)
+        {
+            IntPtr consoleHandle = GetStdHandle(-11);
+            if (consoleHandle == IntPtr.Zero)
+            {
+                return '\0';
+            }
+            COORD position = new COORD
+            {
+                X = (short)x,
+                Y = (short)y
+            };
+            StringBuilder result = new StringBuilder(1);
+            uint read = 0;
+            if (ReadConsoleOutputCharacter(consoleHandle, result, 1, position, out read))
+            {
+                return result[0];
+            }
+            else
+            {
+                return '\0';
+            }
+        }
+        public static char ReadCursorChar()
+        {
+            return ReadCharacterAt(Console.CursorLeft, Console.CursorTop);
+        }
+        #endregion
     }
 }

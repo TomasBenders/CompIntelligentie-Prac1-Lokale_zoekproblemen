@@ -11,17 +11,18 @@ namespace SudokuSolver
         static int posX;
         static int posY;
 
-        internal class Cell {
-            internal int value ;
-            internal List<int> domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        internal class Cell
+        {
+            internal int value;
+            internal List<int> domain = new();
 
-            internal Cell (int value= 0)
+            internal Cell(int value = 0)
             {
                 this.value = value;
             }
         }
 
-        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, int x, int y) //Tomas
+        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid) //Tomas
         {
             // Set position for printing
             posX = sudokuGrid.posX;
@@ -31,8 +32,9 @@ namespace SudokuSolver
             Cell[,] variables = new Cell[sudokuGrid.GridSize, sudokuGrid.GridSize];
             for (int x2 = 0; x2 < sudokuGrid.GridSize; x2++)
                 for (int y2 = 0; y2 < sudokuGrid.GridSize; y2++)
-                    variables[x2, y2] = new (-sudokuGrid.GridValues[x, y]);
+                    variables[x2, y2] = new(-sudokuGrid.GridValues[x2, y2]);
 
+            PrintVariables(variables);
             //Apply CBT Algorithm
             ChronologicalBackTracking(ref variables);
 
@@ -46,18 +48,36 @@ namespace SudokuSolver
             return new SudokuGrid(sudokuGrid.boxSize, values) { posX = posX, posY = posY };
         }
 
-        static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x = 0, int y = 0)
+        static internal void ChronologicalBackTracking(ref Cell[,] variables)
         {
+            NodeConsistent(ref variables);
+            ChronologicalBackTracking(ref variables, 0, 0);
+        }
+        static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x, int y)
+        {
+            if (y >= variables.GetLength(1)) // all cells done
+                return true;
+
             if (Math.Sign(variables[x, y].value) == -1) // fixated cell
-                return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1));
+                return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), y + (x + 1) / variables.GetLength(1));
 
-            for (int i = 0; i < variables[x,y].domain.Count; i++)
+            for (int i = 0; i < variables[x, y].domain.Count; i++)
             {
-                if (!DynamicForwardChecking(ref variables, x, y) ||
-                    !ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), (x + 1) / variables.GetLength(1)))
-                {
-                    //TO DO: revert changes
+                variables[x, y].value = variables[x, y].domain[i];
+                PrintVariables(variables, x, y);
 
+                if (!DynamicForwardChecking(ref variables, x, y) ||
+                    !ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), y + (x + 1) / variables.GetLength(1)))
+                {
+                    variables[x, y].value = 0;
+                    PrintVariables(variables, x, y, color: ConsoleColor.Blue);
+
+                    for (int x1 = x + 1; x1 < variables.GetLength(0); x1++)
+                        NodeConsistentSingle(ref variables, x1, y);
+                    for (int y1 = y + 1; y1 < variables.GetLength(1); y1++)
+                        NodeConsistentSingle(ref variables, x, y1);
+                    for (int j = (y % 3) * 3 + x % 3 + 1; j < 9; j++)
+                        NodeConsistentSingle(ref variables, j % 3 + (x / 3) * 3, j / 3 + (y / 3) * 3);
                 }
                 else
                     return true;
@@ -67,74 +87,46 @@ namespace SudokuSolver
 
         static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y) //Erben
         {
-            List<int> actualdomain = CalcDomain(variables, x, y);
-            List<int> domein = variables[x, y].domain;
-            if (domein.Sum() < 0) return false;
-            int number = variables[x, y].value;
+            for (int x1 = x + 1; x1 < variables.GetLength(0); x1++)
+                if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, x1, y))
+                    return false;
 
-            for (int right = x; right < 9; right++)
-            {
-                //rechts domain updaten
-                variables[right, y].domain.Remove(number);
-            }
-            for (int left = y; left < 9; left++)
-            {
-                variables[x, left].domain.Remove(number);
-                //links domain updaten
+            for (int y1 = y + 1; y1 < variables.GetLength(1); y1++)
+                if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, x, y1))
+                    return false;
 
+            for (int i = (y % 3) * 3 + x % 3 + 1; i < 9; i++)
+                if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, i % 3 + (x / 3) * 3, i / 3 + (y / 3) * 3))
+                    return false;
 
-                //get first number in domain
-                //check if row,colum and box domains still have that number
-                //if not impossible
-                //if they do delete number and update domain
-
-
-            }
-            int x1 = 3 * (x / 3);
-            int y1 = 3 * (y / 3);
-            int x2 = x1 + 2;
-            int y2 = y1 + 2;
-            for (int x3 = x1; x <= x2; x++)
-            {
-                for (int y3 = y1; y <= y2; y++)
-                {
-                    variables[x3, y3].domain.Remove(number);
-                }
-            }
             return true;
-            //throw new NotImplementedException();
+        }
+        static internal bool DynamicForwardCheckingSingle(ref Cell[,] variables, int value, int x, int y)
+        {
+            if (Math.Sign(variables[x, y].value) == -1)
+                return true;
+
+            variables[x, y].domain.Remove(value);
+            return variables[x, y].domain.Count > 0;
         }
 
         static internal void NodeConsistent(ref Cell[,] variables) //Erben
         {
-            for(int x = 0; x<9;x++)
-            {
-                for (int y = 0; y < 9; y++)
-                {
-                    List<int> domein = variables[x,y].domain;
-
-                    if (domein.Count == 1) break;
-                    List<int> actualdomain = CalcDomain(variables, x, y);
-                    variables[x, y].domain = (List<int>)domein.Except(actualdomain);
-                }
-            }
-
-            //procedure node-consistency(CSP) returns CSP:
-            //for each Vi ∈ V do
-            //        Di ← Di ∩ { d | (d, d) ∈ Ci,i}
-            //od;
-            //for each Ci, j ∈ C do
-            //        Ci,j ← Ci,j ∩ (Di × Dj)
-            //od
-            //end
-           // throw new NotImplementedException();
+            for (int x = 0; x < variables.GetLength(0); x++)
+                for (int y = 0; y < variables.GetLength(1); y++)
+                    NodeConsistentSingle(ref variables, x, y);
+        }
+        static internal void NodeConsistentSingle(ref Cell[,] variables, int x, int y)
+        {
+            if (Math.Sign(variables[x, y].value) != -1)
+                variables[x, y].domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Except(CalcDomain(variables, x, y)).ToList();
         }
 
         static internal List<int> GetRowOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
             for (int i = 0; i < variables.GetLength(0); i++)
-                if(variables[i, y].value != 0)
+                if (variables[i, y].value != 0)
                     occurences.Add(Math.Abs(variables[i, y].value));
             return occurences;
         }
@@ -155,7 +147,7 @@ namespace SudokuSolver
             {
                 for (int y2 = 0; y2 < 3; y2++)
                 {
-                    if (variables[x2 + offsetx , y2 + offsety ].value != 0)
+                    if (variables[x2 + offsetx, y2 + offsety].value != 0)
                         occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety].value));
                 }
             }
@@ -178,7 +170,7 @@ namespace SudokuSolver
             return occurences.ToList();
         }
 
-        static internal void PrintVariables(Cell[,] variables, int newX = -1, int newY = -1, bool absAll = true) //Tomas
+        static internal void PrintVariables(Cell[,] variables, bool absAll = true) //Tomas
         {
             if (!Utils.shouldPrintIntermediaries)
                 return;
@@ -188,11 +180,40 @@ namespace SudokuSolver
                 {
                     Console.SetCursorPosition(posX + x * 2, posY + y);
                     bool shouldUnderLine = y % 3 == 2 && y != 8;
-                    bool isNewCoord = x == newX && y == newY;
                     int value = absAll ? Math.Abs(variables[x, y].value) : variables[x, y].value;
-                    Utils.WriteUnderline(value.ToString(), shouldUnderLine, isNewCoord ? ConsoleColor.Red : null);
+                    Utils.WriteUnderline(value.ToString(), shouldUnderLine);
                     Utils.WriteUnderline(x < variables.GetLength(1) - 1 ? (x % 3 == 2 ? "|" : " ") : "", shouldUnderLine, null);
                 }
+
+            if (Utils.shouldWaitAfterIntermediateStep)
+            {
+                char c = Utils.ReadCursorChar();
+                Console.ReadKey();
+                int x = Console.CursorLeft - 1;
+                int y = Console.CursorTop;
+                Console.SetCursorPosition(x, y);
+                bool shouldUnderLine = (y - posY) % 3 == 2 && (y - posY) != 8;
+                Utils.WriteUnderline(c.ToString(), shouldUnderLine);
+            }
+        }
+        static internal void PrintVariables(Cell[,] variables, int x, int y, bool absAll = true, ConsoleColor color = ConsoleColor.Red) //Tomas
+        {
+            if (!Utils.shouldPrintIntermediaries)
+                return;
+
+            bool shouldUnderLine = y % 3 == 2 && y != 8;
+            int value = absAll ? Math.Abs(variables[x, y].value) : variables[x, y].value;
+            Console.SetCursorPosition(posX + x * 2, posY + y);
+            Utils.WriteUnderline(value.ToString(), shouldUnderLine, color);
+
+            if (Utils.shouldWaitAfterIntermediateStep)
+            {
+                char c = Utils.ReadCursorChar();
+                Console.ReadKey();
+                Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                shouldUnderLine = y % 3 == 2 && y != 8;
+                Utils.WriteUnderline(c.ToString(), shouldUnderLine);
+            }
         }
     }
 }

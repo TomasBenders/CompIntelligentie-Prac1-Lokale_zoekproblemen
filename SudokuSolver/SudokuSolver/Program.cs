@@ -3,8 +3,9 @@ using SudokuSolver;
 using SudokuSolver.Properties;
 using System.Collections;
 
-Utils.shouldPrintIntermediaries = true; // print swaps and steps before completion
-Utils.shouldMeasureStats = false;       // print stats for experiment measuring
+Utils.shouldPrintIntermediaries = false;          // print swaps and steps before completion
+Utils.shouldMeasureStats = false;                // print stats for experiment measuring
+Utils.shouldWaitAfterIntermediateStep = false;   // wait after an intermediate step
 
 //zet de 5 gegeven puzzels om in sudokuGrids
 List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
@@ -52,8 +53,9 @@ for (int i = 0; i < sudokuGrids.Count; i++)
 #if true
     // Print resultaat van CBT
     sudokuGrids[i].posX += 20;
-    sudokuGrids[i] = CBT.CBTSolver(sudokuGrids[i], 0, 0);
+    sudokuGrids[i] = CBT.CBTSolver(sudokuGrids[i]);
     sudokuGrids[i].PrintGrid();
+    sudokuGrids[i].posX += 18;
 #endif
     #endregion
 }
