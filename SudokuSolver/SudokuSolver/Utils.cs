@@ -15,7 +15,7 @@ namespace SudokuSolver
     {
         // config
         static internal bool shouldPrintIntermediaries;         // print swaps and steps before completion
-        static internal bool shouldMeasureStats;                // print stats for experiment measuring
+        static internal int howManyTimesRun = 1;                // how many times each puzzel should be solved. Results in more consistent avarage times
         static internal bool shouldWaitAfterIntermediateStep;   // wait after an intermediate step
 
         const int STD_OUTPUT_HANDLE = -11;

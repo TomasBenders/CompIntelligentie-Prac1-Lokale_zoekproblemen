@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace SudokuSolver
     {
         static int posX;
         static int posY;
+        static int statesCount = 0;
 
         internal class Cell
         {
@@ -22,7 +24,7 @@ namespace SudokuSolver
             }
         }
 
-        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid) //Tomas
+        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, out bool solved, out int statesGenerated, out TimeSpan timeTaken) //Tomas
         {
             // Set position for printing
             posX = sudokuGrid.posX;
@@ -35,8 +37,19 @@ namespace SudokuSolver
                     variables[x2, y2] = new(-sudokuGrid.GridValues[x2, y2]);
 
             PrintVariables(variables);
+
+            // Start measurements
+            statesCount++;
+            Stopwatch timer = new();
+            timer.Start();
+
             //Apply CBT Algorithm
-            ChronologicalBackTracking(ref variables);
+            solved = ChronologicalBackTracking(ref variables);
+
+            // Stop measurements
+            timer.Stop();
+            statesGenerated = statesCount;
+            timeTaken = timer.Elapsed;
 
             // Convert variables to value array
             int[] values = new int[sudokuGrid.GridSize * sudokuGrid.GridSize];
@@ -48,10 +61,10 @@ namespace SudokuSolver
             return new SudokuGrid(sudokuGrid.boxSize, values) { posX = posX, posY = posY };
         }
 
-        static internal void ChronologicalBackTracking(ref Cell[,] variables)
+        static internal bool ChronologicalBackTracking(ref Cell[,] variables)
         {
             NodeConsistent(ref variables);
-            ChronologicalBackTracking(ref variables, 0, 0);
+            return ChronologicalBackTracking(ref variables, 0, 0);
         }
         static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x, int y)
         {
@@ -64,6 +77,7 @@ namespace SudokuSolver
             for (int i = 0; i < variables[x, y].domain.Count; i++)
             {
                 variables[x, y].value = variables[x, y].domain[i];
+                statesCount++;
                 PrintVariables(variables, x, y);
 
                 if (!DynamicForwardChecking(ref variables, x, y) ||

@@ -3,9 +3,9 @@ using SudokuSolver;
 using SudokuSolver.Properties;
 using System.Collections;
 
-Utils.shouldPrintIntermediaries = false;          // print swaps and steps before completion
-Utils.shouldMeasureStats = false;                // print stats for experiment measuring
-Utils.shouldWaitAfterIntermediateStep = false;   // wait after an intermediate step
+Utils.shouldPrintIntermediaries = false;        // print swaps and steps before completion
+Utils.howManyTimesRun = 100;                      // how many times each puzzel should be solved. Results in more consistent avarage times
+Utils.shouldWaitAfterIntermediateStep = false;  // wait after an intermediate step
 
 //zet de 5 gegeven puzzels om in sudokuGrids
 List<SudokuGrid> sudokuGrids = SudokuGrid.ParsePuzzels(Resources.Sudoku_puzzels_5);
@@ -50,12 +50,38 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     #endregion
 
     #region Assignment 2
-#if true
-    // Print resultaat van CBT
+#if true // CBT
     sudokuGrids[i].posX += 20;
-    sudokuGrids[i] = CBT.CBTSolver(sudokuGrids[i]);
-    sudokuGrids[i].PrintGrid();
-    sudokuGrids[i].posX += 18;
+
+    SudokuGrid solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out bool isSolved, out int statesGenerated, out TimeSpan timeTaken);
+    List<TimeSpan> times = new();
+    times.Add(timeTaken);
+
+    for (int j = 1; j < Utils.howManyTimesRun; j++) //run x times for better avarage time taken
+    {
+        solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out isSolved, out statesGenerated, out timeTaken);
+        times.Add(timeTaken);
+    }
+
+    // calculate avarage time taken
+    timeTaken = new(times.Sum(x => x.Ticks));
+    timeTaken /= Utils.howManyTimesRun;
+
+    solvedSudoku.PrintGrid(); // Print result
+
+    //Print measurements
+    solvedSudoku.posX += 19;
+    Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY);
+    Console.Write("Solved".PadRight(35) + ": {0}", isSolved);
+    Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 1);
+    Console.Write("Times run".PadRight(35) + ": {0}", Utils.howManyTimesRun);
+    Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 2);
+    Console.Write("States generated per run".PadRight(35) + ": {0}", statesGenerated);
+    Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 3);
+    Console.Write("Avarage time taken in milliseconds".PadRight(35) + ": {0}.{1}", timeTaken.Milliseconds, timeTaken.Ticks - timeTaken.Milliseconds * 10000);
+    Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 4);
+    Console.Write("Avarage time taken in ticks".PadRight(35) + ": {0}", timeTaken.Ticks);
+
 #endif
     #endregion
 }
