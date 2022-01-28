@@ -53,21 +53,14 @@ for (int i = 0; i < sudokuGrids.Count; i++)
 #if true // CBT
     sudokuGrids[i].posX += 20;
 
-    SudokuGrid solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out bool isSolved, out int statesGenerated, out TimeSpan timeTaken);
-    List<TimeSpan> times = new();
-    times.Add(timeTaken);
+    CBT.resetTimes();
+    SudokuGrid solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out bool isSolved, out int statesGenerated);
 
     for (int j = 1; j < Utils.howManyTimesRun; j++) //run x times for better avarage time taken
-    {
-        solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out isSolved, out statesGenerated, out timeTaken);
-        times.Add(timeTaken);
-    }
-
-    // calculate avarage time taken
-    timeTaken = new(times.Sum(x => x.Ticks));
-    timeTaken /= Utils.howManyTimesRun;
+        solvedSudoku = CBT.CBTSolver(sudokuGrids[i], out isSolved, out statesGenerated);
 
     solvedSudoku.PrintGrid(); // Print result
+    var avgTime = CBT.getAvarageTime();
 
     //Print measurements
     solvedSudoku.posX += 19;
@@ -78,9 +71,9 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 2);
     Console.Write("States generated per run".PadRight(35) + ": {0}", statesGenerated);
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 3);
-    Console.Write("Avarage time taken in milliseconds".PadRight(35) + ": {0}.{1}", timeTaken.Milliseconds, timeTaken.Ticks - timeTaken.Milliseconds * 10000);
+    Console.Write("Avarage time taken in milliseconds".PadRight(35) + ": {0}.{1}", avgTime.Milliseconds, avgTime.Ticks - avgTime.Milliseconds * 10000);
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 4);
-    Console.Write("Avarage time taken in ticks".PadRight(35) + ": {0}", timeTaken.Ticks);
+    Console.Write("Avarage time taken in ticks".PadRight(35) + ": {0}", avgTime.Ticks);
 
 #endif
     #endregion

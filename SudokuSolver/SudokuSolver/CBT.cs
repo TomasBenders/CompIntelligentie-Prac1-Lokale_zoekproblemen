@@ -12,6 +12,18 @@ namespace SudokuSolver
         static int posX;
         static int posY;
         static int statesCount = 0;
+        static List<TimeSpan> times = new();
+
+        static internal void resetTimes()
+        {
+            times = new();
+        }
+        static internal TimeSpan getAvarageTime()
+        {
+            TimeSpan timeTaken = new(times.Sum(x => x.Ticks));
+            timeTaken /= Utils.howManyTimesRun;
+            return timeTaken;
+        }
 
         internal class Cell
         {
@@ -24,11 +36,12 @@ namespace SudokuSolver
             }
         }
 
-        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, out bool solved, out int statesGenerated, out TimeSpan timeTaken) //Tomas
+        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, out bool solved, out int statesGenerated) //Tomas
         {
             // Set position for printing
             posX = sudokuGrid.posX;
             posY = sudokuGrid.posY;
+            statesCount = 0;
 
             // Convert sudokuGrid to variables
             Cell[,] variables = new Cell[sudokuGrid.GridSize, sudokuGrid.GridSize];
@@ -49,7 +62,7 @@ namespace SudokuSolver
             // Stop measurements
             timer.Stop();
             statesGenerated = statesCount;
-            timeTaken = timer.Elapsed;
+            times.Add(timer.Elapsed);
 
             // Convert variables to value array
             int[] values = new int[sudokuGrid.GridSize * sudokuGrid.GridSize];
