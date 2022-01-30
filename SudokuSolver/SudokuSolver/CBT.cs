@@ -9,10 +9,10 @@ namespace SudokuSolver
 {
     static internal class CBT
     {
-        static int posX;
-        static int posY;
-        static int statesCount = 0;
-        static List<TimeSpan> times = new();
+        static int posX; // where to print
+        static int posY; // where to print
+        static int statesCount = 0; // amount of generated states
+        static List<TimeSpan> times = new(); // list of recorded times
 
         static internal void resetTimes()
         {
@@ -25,7 +25,7 @@ namespace SudokuSolver
             return timeTaken;
         }
 
-        internal class Cell
+        internal class Cell // Data structure for a variable in the Constraint Satisfaction Problem
         {
             internal int value;
             internal List<int> domain = new();
@@ -36,7 +36,7 @@ namespace SudokuSolver
             }
         }
 
-        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, out bool solved, out int statesGenerated) //Tomas
+        static internal SudokuGrid CBTSolver(SudokuGrid sudokuGrid, out bool solved, out int statesGenerated)
         {
             // Set position for printing
             posX = sudokuGrid.posX;
@@ -76,8 +76,8 @@ namespace SudokuSolver
 
         static internal bool ChronologicalBackTracking(ref Cell[,] variables)
         {
-            NodeConsistent(ref variables);
-            return ChronologicalBackTracking(ref variables, 0, 0);
+            NodeConsistent(ref variables); // first apply node consistency
+            return ChronologicalBackTracking(ref variables, 0, 0); // then start traversing and generating the tree
         }
         static internal bool ChronologicalBackTracking(ref Cell[,] variables, int x, int y)
         {
@@ -87,18 +87,19 @@ namespace SudokuSolver
             if (Math.Sign(variables[x, y].value) == -1) // fixated cell
                 return ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), y + (x + 1) / variables.GetLength(1));
 
-            for (int i = 0; i < variables[x, y].domain.Count; i++)
+            for (int i = 0; i < variables[x, y].domain.Count; i++) // loop over domain options
             {
-                variables[x, y].value = variables[x, y].domain[i];
+                variables[x, y].value = variables[x, y].domain[i]; // set cell, counts as a new state or node in the tree
                 statesCount++;
                 PrintVariables(variables, x, y);
 
                 if (!DynamicForwardChecking(ref variables, x, y) ||
                     !ChronologicalBackTracking(ref variables, (x + 1) % variables.GetLength(1), y + (x + 1) / variables.GetLength(1)))
-                {
-                    variables[x, y].value = 0;
+                { // if this child is not the solution, revert changes
+                    variables[x, y].value = 0; // revert current cell
                     PrintVariables(variables, x, y, color: ConsoleColor.Blue);
 
+                    // recalculate domains
                     for (int x1 = x + 1; x1 < variables.GetLength(0); x1++)
                         NodeConsistentSingle(ref variables, x1, y);
                     for (int y1 = y + 1; y1 < variables.GetLength(1); y1++)
@@ -106,46 +107,50 @@ namespace SudokuSolver
                     for (int j = (y % 3) * 3 + x % 3 + 1; j < 9; j++)
                         NodeConsistentSingle(ref variables, j % 3 + (x / 3) * 3, j / 3 + (y / 3) * 3);
                 }
-                else
+                else // this is the solution
                     return true;
             }
-            return false;
+            return false; // no option in domain was the solution meaning the parent is wrong
         }
 
-        static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y) //Erben
+        static internal bool DynamicForwardChecking(ref Cell[,] variables, int x, int y)
         {
+            // loop over cells to the right
             for (int x1 = x + 1; x1 < variables.GetLength(0); x1++)
                 if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, x1, y))
                     return false;
 
+            // loop over cells below
             for (int y1 = y + 1; y1 < variables.GetLength(1); y1++)
                 if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, x, y1))
                     return false;
 
+            // loop over cell in box, right and below
             for (int i = (y % 3) * 3 + x % 3 + 1; i < 9; i++)
                 if (!DynamicForwardCheckingSingle(ref variables, variables[x, y].value, i % 3 + (x / 3) * 3, i / 3 + (y / 3) * 3))
                     return false;
 
-            return true;
+            return true; // change is possible, no domain became empty
         }
         static internal bool DynamicForwardCheckingSingle(ref Cell[,] variables, int value, int x, int y)
         {
-            if (Math.Sign(variables[x, y].value) == -1)
+            if (Math.Sign(variables[x, y].value) == -1) // fixated cells
                 return true;
 
-            variables[x, y].domain.Remove(value);
-            return variables[x, y].domain.Count > 0;
+            variables[x, y].domain.Remove(value); // reduce domain
+            return variables[x, y].domain.Count > 0; // check if domain became empty
         }
 
-        static internal void NodeConsistent(ref Cell[,] variables) //Erben
+        static internal void NodeConsistent(ref Cell[,] variables)
         {
+            // loop over all variables
             for (int x = 0; x < variables.GetLength(0); x++)
                 for (int y = 0; y < variables.GetLength(1); y++)
                     NodeConsistentSingle(ref variables, x, y);
         }
         static internal void NodeConsistentSingle(ref Cell[,] variables, int x, int y)
         {
-            if (Math.Sign(variables[x, y].value) != -1)
+            if (Math.Sign(variables[x, y].value) != -1) // if not fixated, callculate reduced domain
                 variables[x, y].domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Except(CalcInverseDomain(variables, x, y)).ToList();
         }
 
@@ -153,7 +158,7 @@ namespace SudokuSolver
         /// Gets a list of assigned values in the given row of the given sudokugrid
         /// </summary>
         /// <returns>A list of values found</returns>
-        static internal List<int> GetRowOccurrences(Cell[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetRowOccurrences(Cell[,] variables, int x, int y)
         {
             List<int> occurences = new List<int>();
             for (int i = 0; i < variables.GetLength(0); i++) // Loop over every variables in that row and add all found values
@@ -166,7 +171,7 @@ namespace SudokuSolver
         /// Gets a list of assigned values in the given column of the given sudokugrid
         /// </summary>
         /// <returns>A list of values found</returns>
-        static internal List<int> GetColumnOccurrences(Cell[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetColumnOccurrences(Cell[,] variables, int x, int y)
         {
             List<int> occurences = new List<int>();
             for (int i = 0; i < variables.GetLength(1); i++) // Loop over every variables in that column and add all found values
@@ -179,14 +184,14 @@ namespace SudokuSolver
         /// Gets a list of assigned values in the given box of the given sudokugrid
         /// </summary>
         /// <returns>A list of values found</returns>
-        static internal List<int> GetBoxOccurrences(Cell[,] variables, int x, int y) //Tjerk
+        static internal List<int> GetBoxOccurrences(Cell[,] variables, int x, int y)
         {
             List<int> occurences = new List<int>();
             int offsetx = (x / 3) * 3;
             int offsety = (y / 3) * 3;
             for (int x2 = 0; x2 < 3; x2++) // Loop over every variables in the box and add all found values
             {
-                for (int y2 = 0; y2 < 3; y2++) 
+                for (int y2 = 0; y2 < 3; y2++)
                 {
                     if (variables[x2 + offsetx, y2 + offsety].value != 0)
                         occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety].value));
@@ -199,7 +204,7 @@ namespace SudokuSolver
         /// Gets a list of assigned values for the domain (Vertical, Horizontal and Box) of the given place in the given sudokugrid
         /// </summary>
         /// <returns>A list of values found</returns>
-        static internal List<int> CalcInverseDomain(Cell[,] variables, int x, int y) //Tjerk
+        static internal List<int> CalcInverseDomain(Cell[,] variables, int x, int y)
         {
             HashSet<int> occurences = new HashSet<int>(); // Create a hashset to automaticly get rid off duplicates
             List<int> oRow = GetRowOccurrences(variables, x, y);
@@ -216,7 +221,7 @@ namespace SudokuSolver
             return occurences.ToList();
         }
 
-        static internal void PrintVariables(Cell[,] variables, bool absAll = true) //Tomas
+        static internal void PrintVariables(Cell[,] variables, bool absAll = true)
         {
             if (!Utils.shouldPrintIntermediaries)
                 return;
