@@ -146,33 +146,47 @@ namespace SudokuSolver
         static internal void NodeConsistentSingle(ref Cell[,] variables, int x, int y)
         {
             if (Math.Sign(variables[x, y].value) != -1)
-                variables[x, y].domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Except(CalcDomain(variables, x, y)).ToList();
+                variables[x, y].domain = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Except(CalcInverseDomain(variables, x, y)).ToList();
         }
 
+        /// <summary>
+        /// Gets a list of assigned values in the given row of the given sudokugrid
+        /// </summary>
+        /// <returns>A list of values found</returns>
         static internal List<int> GetRowOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
-            for (int i = 0; i < variables.GetLength(0); i++)
+            for (int i = 0; i < variables.GetLength(0); i++) // Loop over every variables in that row and add all found values
                 if (variables[i, y].value != 0)
                     occurences.Add(Math.Abs(variables[i, y].value));
             return occurences;
         }
+
+        /// <summary>
+        /// Gets a list of assigned values in the given column of the given sudokugrid
+        /// </summary>
+        /// <returns>A list of values found</returns>
         static internal List<int> GetColumnOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
-            for (int i = 0; i < variables.GetLength(1); i++)
+            for (int i = 0; i < variables.GetLength(1); i++) // Loop over every variables in that column and add all found values
                 if (variables[x, i].value != 0)
                     occurences.Add(Math.Abs(variables[x, i].value));
             return occurences;
         }
+
+        /// <summary>
+        /// Gets a list of assigned values in the given box of the given sudokugrid
+        /// </summary>
+        /// <returns>A list of values found</returns>
         static internal List<int> GetBoxOccurrences(Cell[,] variables, int x, int y) //Tjerk
         {
             List<int> occurences = new List<int>();
             int offsetx = (x / 3) * 3;
             int offsety = (y / 3) * 3;
-            for (int x2 = 0; x2 < 3; x2++)
+            for (int x2 = 0; x2 < 3; x2++) // Loop over every variables in the box and add all found values
             {
-                for (int y2 = 0; y2 < 3; y2++)
+                for (int y2 = 0; y2 < 3; y2++) 
                 {
                     if (variables[x2 + offsetx, y2 + offsety].value != 0)
                         occurences.Add(Math.Abs(variables[x2 + offsetx, y2 + offsety].value));
@@ -180,14 +194,19 @@ namespace SudokuSolver
             }
             return occurences;
         }
-        static internal List<int> CalcDomain(Cell[,] variables, int x, int y) //Tjerk
+
+        /// <summary>
+        /// Gets a list of assigned values for the domain (Vertical, Horizontal and Box) of the given place in the given sudokugrid
+        /// </summary>
+        /// <returns>A list of values found</returns>
+        static internal List<int> CalcInverseDomain(Cell[,] variables, int x, int y) //Tjerk
         {
-            HashSet<int> occurences = new HashSet<int>();
+            HashSet<int> occurences = new HashSet<int>(); // Create a hashset to automaticly get rid off duplicates
             List<int> oRow = GetRowOccurrences(variables, x, y);
             List<int> oCol = GetColumnOccurrences(variables, x, y);
             List<int> oDom = GetBoxOccurrences(variables, x, y);
 
-            for (int i = 0; i < oRow.Count; i++)
+            for (int i = 0; i < oRow.Count; i++)          // Add all list in the hashset 
                 occurences.Add(oRow[i]);
             for (int i = 0; i < oCol.Count; i++)
                 occurences.Add(oCol[i]);
