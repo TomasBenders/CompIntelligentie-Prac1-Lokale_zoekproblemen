@@ -71,7 +71,7 @@ for (int i = 0; i < sudokuGrids.Count; i++)
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 2);
     Console.Write("States generated per run".PadRight(35) + ": {0}", statesGenerated);
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 3);
-    Console.Write("Avarage time taken in milliseconds".PadRight(35) + ": {0}.{1}", avgTime.Milliseconds, avgTime.Ticks - avgTime.Milliseconds * 10000);
+    Console.Write("Avarage time taken in milliseconds".PadRight(35) + ": {0}", avgTime.TotalMilliseconds);
     Console.SetCursorPosition(solvedSudoku.posX, solvedSudoku.posY + 4);
     Console.Write("Avarage time taken in ticks".PadRight(35) + ": {0}", avgTime.Ticks);
 
